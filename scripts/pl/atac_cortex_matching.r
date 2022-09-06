@@ -384,3 +384,28 @@ mc_from_mcl_flow = as.matrix(sc_mic_cl_full) %*% apply(flow_mat, 2, function(x) 
 mcl_flow_norm = mc_from_mcl_flow/colSums(mc_from_mcl_flow)
 
 saveRDS(object = list('flow_mat' = flow_mat, 'cl_all' = cl_all, 'mc_from_mcl_flow' = mc_from_mcl_flow), file = './data/pl_flow_res.rds')
+
+metacells_from_mcl_flow <- function(flow_path, day_mcl_path) {
+    flow_file <- readRDS(flow_path)
+    day_mcls <- readRDS(day_mcl_path)
+    flow_mat <- flow_file$flow_mat
+    dmcl_vec <- unlist(lapply(seq_along(day_mcls), function(x,n,i) setNames(paste0(n[[i]], '_', x[[i]]$cor_km$cluster), colnames(x[[i]]$prom_mat)), x = day_mcls, n = names(day_mcls)))
+    mcls_nums <- unlist(lapply(names(dmcl), function(d) paste0(d, "_", sort(unique(dmcl[[1]]$cor_km$cluster)))))
+    dmcl_rename <- match(dmcl_vec, mcls_nums)
+    names(dmcl_rnm) <- names(dmcl_vec)
+    flow_mat_norm <- flow_mat/rowSums(flow_mat)
+    flow_mat_cs <- apply(flow_mat_norm, 1, function(x) {
+        y <- setNames(x[which(x > 0)], which(x > 0));
+        ycs <- cumsum(y)
+        names(ycs) <- names(y)
+        return(ycs)
+    })
+    dmcl_rand_nums <- runif(length(dmcl_rename))
+    cell_to_metacell <- as.numeric(unlist(purrr::map2(.x = dmcl_rand_nums, .y = dmcl_rename, .f = function(.x,.y) {
+        names(flow_mat_cs[[.y]])[min(which(flow_mat_cs[[.y]] >= .x))]
+    })))
+    names(cell_to_metacell) <- names(dmcl_vec)
+    return(tibble::enframe(cell_to_metacell, name = 'cell', value = 'metacell'))
+}
+
+c2mc <- metacells_from_mcl_flow(flow_path = './data/pl_flow_res.rds', day_mcl_path = './data/pl_cort_prom_day_mcls.rds')

@@ -61,7 +61,7 @@ mcell_gset_remove_clusts(gset_id = nm, filt_clusts = clusts_to_remove,
                          new_id = paste0(nm, '_lateral'), reverse=T)
 
 lat = scdb_gset(paste0(nm, '_lateral'))
-lat@gene_set = c(lat@gene_set, setNames(rep(NA, length(star_rb), star_rb))
+lat@gene_set = c(lat@gene_set, setNames(rep(NA, length(star_rb)), star_rb))
 scdb_add_gset(paste0(nm, '_lateral'), lat)
 
 mcell_gset_remove_clusts(gset_id = nm, filt_clusts = clusts_to_remove, 

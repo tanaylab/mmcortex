@@ -88,35 +88,35 @@ mcmd= tibble::tibble(cbind(mcmd, day_mat))
 colnames(mcmd)[colnames(mcmd) %in% 1:6] = 13:18
 head(mcmd)
 
-# make_day_mcl = function(d, mat) {
-#     cond1 = mat@cell_metadata$day == d
-#     cond2 = rownames(mat@cell_metadata) %in% colnames(mat@mat)
-#     mat = mat@mat[,rownames(mat@cell_metadata)[cond1 & cond2]]
-#     mat = as.matrix(mat)
-#     aumi = scm_downsamp(mat, n = min(Matrix::colSums(mat)))
-# #     cor_mat = tgs_cor(as.matrix(mat[feats_filt,]), as.matrix(mc_rna@mc_fp[feats_filt,]), spearman = T)
-#     cor_mat = tgs_cor(as.matrix(aumi[feats_filt,]), log2(1e-07 + mc_rna@e_gc[feats_filt,]), spearman = T)
-#     cor_km = tglkmeans::TGL_kmeans(df = cor_mat, k = K, seed = SEED)
-#     # print(dim(mat))
-#     # print(length(cor_km$cluster))
-#     sc_mic_cl = t(tgs_matrix_tapply(mat, cor_km$cluster, mean))
-# #     cor_mic_cl = tgs_cor(x = as.matrix(sc_mic_cl[feats_filt,]), y = mc_rna@mc_fp[feats_filt,], spearman = T)
-#     # print(dim(sc_mic_cl))
-#     # print(class(sc_mic_cl))
-#     cor_mic_cl = tgs_cor(x = sc_mic_cl[feats_filt,], y = log2(1e-07 + mc_rna@e_gc[feats_filt,]), spearman = T)
-#     return(list('cor_mic_cl' = cor_mic_cl, 'sc_mic_cl' = sc_mic_cl, 'cor_km' = cor_km, 'cor_mat' = cor_mat, 'mat' = mat))
-# }
+make_day_mcl = function(d, mat) {
+    cond1 = mat@cell_metadata$day == d
+    cond2 = rownames(mat@cell_metadata) %in% colnames(mat@mat)
+    mat = mat@mat[,rownames(mat@cell_metadata)[cond1 & cond2]]
+    mat = as.matrix(mat)
+    aumi = scm_downsamp(mat, n = min(Matrix::colSums(mat)))
+#     cor_mat = tgs_cor(as.matrix(mat[feats_filt,]), as.matrix(mc_rna@mc_fp[feats_filt,]), spearman = T)
+    cor_mat = tgs_cor(as.matrix(aumi[feats_filt,]), log2(1e-07 + mc_rna@e_gc[feats_filt,]), spearman = T)
+    cor_km = tglkmeans::TGL_kmeans(df = cor_mat, k = K, seed = SEED)
+    # print(dim(mat))
+    # print(length(cor_km$cluster))
+    sc_mic_cl = t(tgs_matrix_tapply(mat, cor_km$cluster, mean))
+#     cor_mic_cl = tgs_cor(x = as.matrix(sc_mic_cl[feats_filt,]), y = mc_rna@mc_fp[feats_filt,], spearman = T)
+    # print(dim(sc_mic_cl))
+    # print(class(sc_mic_cl))
+    cor_mic_cl = tgs_cor(x = sc_mic_cl[feats_filt,], y = log2(1e-07 + mc_rna@e_gc[feats_filt,]), spearman = T)
+    return(list('cor_mic_cl' = cor_mic_cl, 'sc_mic_cl' = sc_mic_cl, 'cor_km' = cor_km, 'cor_mat' = cor_mat, 'mat' = mat))
+}
 
-# day_mcls = lapply(days, function(d) make_day_mcl(d, prom_sum))
+day_mcls = lapply(days, function(d) make_day_mcl(d, prom_sum))
 # # day_mcls = lapply(days, function(d) make_day_mcl(d, gb_sum))
-# names(day_mcls) = days
+names(day_mcls) = days
 
-# saveRDS(day_mcls, './data/pl_cort_prom_day_mcls.rds')
+saveRDS(day_mcls, './data/pl_cort_prom_day_mcls_test.rds')
 
 # saveRDS(day_mcls, './data/pl_cort_gb_day_mcls.rds')
 
 # day_mcls = readRDS('./data/pl_cort_gb_day_mcls.rds')
-day_mcls = readRDS('./data/pl_cort_prom_day_mcls.rds')
+# day_mcls = readRDS('./data/pl_cort_prom_day_mcls_test.rds')
 
 # lapply(day_mcls, function(x) sort(table(x$cor_km$cluster)))
 
@@ -144,7 +144,7 @@ plot_mc_pheatmap = function(cor_km, cor_mat, cor_mic_cl, day) {
                                    main = glue::glue('day {day}'), annotation_col = annotation_col, 
                                    annotation_colors = ann_colors,
                         color = colorRampPalette(c('blue','green', 'white','yellow','red'))(1000))
-                save_pheatmap_png(pi, paste0(day_mcl_cor_figs_dir, '/', day, '.png'), h=1200,w=1200)
+                save_pheatmap_png(pi, paste0(day_mcl_cor_figs_dir, '/', day, '_test.png'), h=1200,w=1200)
 }
 
 lapply(seq_along(day_mcls), function(x,n,i) {
@@ -341,7 +341,7 @@ tapply(p_j, mcmd$st, sum)
 
 tapply(apply(mc_sol, 1, sum), mcmd$st, sum)/tapply(p_j, mcmd$st, sum)
 
-png('./figs/pl_sum_flow_to_mc.png', res = 250, height = 1600, width = 1600)
+# png('./figs/pl_sum_flow_to_mc.png', res = 250, height = 1600, width = 1600)
 
 plot(as.numeric(p_j), as.numeric(apply(flow_mat, 2, sum)), ylab = 'sum flow to metacell', xlab = 'metacell fraction',
     pch = 16, col = mcmd$color, bg='black')
@@ -358,7 +358,7 @@ mc_from_mcl_flow = as.matrix(sc_mic_cl_full) %*% apply(flow_mat, 2, function(x) 
 
 mcl_flow_norm = mc_from_mcl_flow/colSums(mc_from_mcl_flow)
 
-saveRDS(object = list('flow_mat' = flow_mat, 'cl_all' = cl_all, 'mc_from_mcl_flow' = mc_from_mcl_flow), file = './data/pl_flow_res.rds')
+saveRDS(object = list('flow_mat' = flow_mat, 'cl_all' = cl_all, 'mc_from_mcl_flow' = mc_from_mcl_flow), file = './data/pl_flow_res_test.rds')
 
 gb = intersect(rownames(mc_from_mcl_flow), rownames(mc_rna@e_gc))
 
@@ -374,7 +374,7 @@ p = pheatmap::pheatmap(cor_atac_rna[cust_mc_ord_st,cust_mc_ord_st], cluster_cols
                    annotation_colors = ann_colors,
                        color = colorRampPalette(c('blue','green', 'white','yellow','red'))(1000),
                   )
-save_pheatmap_png(p, './figs/pl_cor_mc_atac_rna.png')
+save_pheatmap_png(p, './figs/pl_cor_mc_atac_rna_test.png')
 options(repr.plot.height = 6, repr.plot.width = 6)
 
 cor_atac_rna_genes = tgs_cor(t(mcl_flow_norm[gb,]), t(log2(mc_rna@e_gc[gb,] + 1e-06)), spearman = T)
@@ -394,7 +394,7 @@ p = pheatmap::pheatmap(flow_mat[order(flow_com),cust_mc_ord_st],
                    annotation_col = annotation_col, 
                    annotation_colors = ann_colors)
 
-save_pheatmap_png(p,'./figs/pl_mcl_mc_flow_mat.png')
+save_pheatmap_png(p,'./figs/pl_mcl_mc_flow_mat_test.png')
 
 flow_mat_st = t(tgs_matrix_tapply(flow_mat[order(flow_com),cust_mc_ord_st], names(cust_mc_ord_st), sum))
 options(repr.plot.height = 12)
@@ -413,7 +413,7 @@ p = pheatmap::pheatmap(flow_mat_st[,cust_st_ord],
                       )
 options(repr.plot.height = 8)
 
-save_pheatmap_png(p,'./figs/pl_flow_mat_st.png', height = 2200, width= 1200)
+save_pheatmap_png(p,'./figs/pl_flow_mat_st_test.png', height = 2200, width= 1200)
 
 # genes_to_plot = head(diag(cor_atac_rna_genes)[order(diag(cor_atac_rna_genes), decreasing = T)], 50)
 # genes_to_plot

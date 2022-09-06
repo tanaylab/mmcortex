@@ -13,25 +13,23 @@ SEED = 1337
 set.seed(SEED)
 
 nm = 'pl_cort'
+mgraph_id = nm
+# net_id = paste0(nm, '_test')
+net_id = nm
+flow_id = net_id
+fig_dir = "figs/"
+occ2 = 1e+04
+max_div_per_day = 2
 
 mat = scdb_mat(nm)
-
 mc = scdb_mc(nm)
-
-
-
-mgraph_id = nm
 
 cell_time = mat@cell_metadata[names(mc@mc),"t"]
 cell_time = cell_time - 12
 names(cell_time) = names(mc@mc)
 mc_mean_day = tapply(cell_time, mc@mc, mean) + 12
 
-net_id = paste0(nm, '_test')
-
 time_age_groups = c(13:18)
-
-
 
 get_mc_cc = function() {
   ## function from Markus
@@ -72,22 +70,27 @@ get_mc_cc = function() {
 mc_cc = get_mc_cc()
 cc_score = mc_cc$cc_score
 
-eomes_egc = mc@e_gc['Eomes',]
-eomes_egc_lin = (eomes_egc - min(eomes_egc))/(max(eomes_egc) - min(eomes_egc))
+eomes_egc <- mc@e_gc['Eomes',]
+eomes_egc_lin <- (eomes_egc - min(eomes_egc))/(max(eomes_egc) - min(eomes_egc))
+eomes_factor <- (1-0.5*plogis(eomes_egc_lin, location = 0.1, scale = 0.1))
+mature_genes <- c('Mef2c', 'Mapt')
+mature_genes_egc <- colSums(mc@e_gc[mature_genes,])
+mature_genes_egc_lin <- (mature_genes_egc - min(mature_genes_egc))/(max(mature_genes_egc) - min(mature_genes_egc))
+# mature_genes_factor <- (1-0.5*plogis(mature_genes_egc_lin, location = 0.25, scale = .025))
+mature_genes_factor <- 1
 
-max_div_per_day = 2
 # prol_df = dplyr::mutate(mc_cc, proliferation_rate = max_div_per_day*(100-mc_cc$cc_score)/100) %>% 
 #             select(1,3) %>% 
 #             tibble::rownames_to_column(.)
-prol_df = dplyr::mutate(mc_cc, proliferation_rate = as.numeric(max_div_per_day*(100-mc_cc$cc_score)*(1 - eomes_egc_lin)*(1 - 0.4*plogis(mc_mean_day,mean(c(13,18)),.15))/100)) %>% 
+
+prol_df = dplyr::mutate(mc_cc, proliferation_rate = (2**as.numeric(max_div_per_day*((100-mc_cc$cc_score)/100)*eomes_factor))*mature_genes_factor) %>% 
             select(1,3) %>% 
             tibble::rownames_to_column(.)
+# prol_df = dplyr::mutate(mc_cc, proliferation_rate = as.numeric(max_div_per_day*(100-mc_cc$cc_score)*(1 - eomes_egc_lin)*(1 - 0.4*plogis(mc_mean_day,mean(c(13,18)),.15))/100)) %>% 
+#             select(1,3) %>% 
+#             tibble::rownames_to_column(.)
 
 readr::write_tsv(x=prol_df, file = './data/pl_cort_prol_rates.tsv')
-
-
-occ2 = 1e+04
-# capacity_var_factor = 0.5
 
 mcell_mctnet_from_mgraph(net_id = net_id,mgraph_id = mgraph_id,cell_time = cell_time,
                          mc_proliferation_rate_fn = "data/pl_cort_prol_rates.tsv",
@@ -96,37 +99,14 @@ mcell_mctnet_from_mgraph(net_id = net_id,mgraph_id = mgraph_id,cell_time = cell_
                          )
 
 
-flow_id = net_id
-fig_dir = "figs/"
-
-# flow_tolerance = 0.01
-# max_flow_tolerance = 0.05
-flow_tolerance = 0
-max_flow_tolerance = 0
+flow_tolerance = 0.02
+max_flow_tolerance = 0.1
+# flow_tolerance = 0
+# max_flow_tolerance = 0
     
 message("generate flows")
 
 mct = scdb_mctnetwork(net_id)
-
-# mcf = scdb_mctnetflow(net_id)
-
-# differentiation_penalty_factor = 1e+5
-
-# terminal_genes = c('Mapt','Mef2c','Meg3', 'Stmn2')
-
-# mat_mod = mc@mc_fp[terminal_genes,]
-# mat_z = exp(t(apply(mat_mod, 1, function(x) (x - mean(x))/sd(x)))**2)
-
-# mc_penalty  = differentiation_penalty_factor * apply(mat_z, 2, sum)
-# # mc_penalty = mc_penalty/min(mc_penalty)
-# mcmfc_new = mct@mc_manif_cost
-# mcmfc_new$cost = ifelse(mct@mc_manif_cost$mc1 != mct@mc_manif_cost$mc2, mct@mc_manif_cost$cost*mc_penalty[mcmfc_new$mc1], mct@mc_manif_cost$cost)
-                    
-# mct@mc_manif_cost = mcmfc_new
-# scdb_add_mctnetwork(net_id, mct)
-
-# mct@mc_manif_cost = mcmfc_new
-# scdb_add_mctnetwork(net_id, mct)
 
 mcell_new_mctnetflow(flow_id, net_id, 
                      init_mincost = T, flow_tolerance=flow_tolerance, max_flow_tolerance = max_flow_tolerance)
@@ -141,9 +121,9 @@ mcf = mctnetflow_comp_propagation(mcf)
 #adding back the object with the network and flows
 scdb_add_mctnetflow(flow_id, mcf)
 
-cust_st_ord = c('Oligodendrocytes','Astrocytes','NSC','IPC_cyc', 'IPC','IPC_late','iCPN_early','iCPN_late',
+cust_st_ord = c('Oligodendrocytes','Astrocytes','NSC','IPC_cyc', 'IPC','iCPN_early','iCPN_late',
                       'CPN_L2-3','CPN_L5_6','iCPN/CfuPN','iCfuPN','SCPN','CthPN')
-mcmd = readr::read_tsv('./BonevCollab/mcmd_pl_cort.tsv')
+mcmd = readr::read_tsv('./BonevCollab/mcmd_pl_cort_freeze_1_9_22.tsv')
 color_key = unique(mcmd[,c('st', 'color')])
 color_ord = color_key$color[match(cust_st_ord, color_key$st)]
-mctnetwork_plot_net(net_id, net_id, fn = './figs/pl_cort_test_plot_net_scale_0.15_coef_0.4.png', colors_ordered=color_ord)
+mctnetwork_plot_net(net_id, net_id, fn = './figs/pl_cort_test_plot_net_neg_growth_coef.png', colors_ordered=color_ord)
