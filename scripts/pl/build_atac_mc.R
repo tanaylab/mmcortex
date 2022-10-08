@@ -9,10 +9,10 @@ devtools::load_all("~/src/mcATAC/")
 gset_genome("mm10")
 gdb.reload()
 
-# write_sc_counts_from_fragments(fragments_file = './scatac_data/fragments_filtered.tsv.gz', 
-#             out_dir = './data/frag_reads', 
-#             cell_names = colnames(mat@mat), 
-#             genome = "mm10")
+write_sc_counts_from_fragments(fragments_file = './scatac_data/fragments_filtered.tsv.gz', 
+            out_dir = './data/frag_reads', 
+            cell_names = colnames(mat@mat), 
+            genome = "mm10")
 
 # metacells_from_mcl_flow <- function(flow_path, day_mcl_path) {
 #     flow_file <- readRDS(flow_path)
@@ -38,12 +38,15 @@ gdb.reload()
 # }
 
 # c2mc <- metacells_from_mcl_flow(flow_path = './data/pl_flow_res.rds', day_mcl_path = './data/pl_cort_prom_day_mcls.rds')
+c2mc <- readr::read_tsv("./output/mcatac/c2mc.tsv")
 
-# scc <- scc_read(path = './data/frag_reads/')
+scc <- scc_read(path = './data/frag_reads/')
 # mcc <- scc_project_on_mc(sc_counts = scc, cell_to_metacell = dplyr::rename(c2mc, cell_id = cell))
-# mcc_write(object=mcc, out_dir='./data/mmcortex_mcc', overwrite = F)
-mcc <- mcc_read('./data/mmcortex_mcc/')
-# mcc_to_tracks(mc_counts = mcc, track_prefix = "mmcortex", overwrite = F, create_marginal_track = T)
+mcc@metadata <- mcmd
+mcc@rna_egc <- mc@e_gc
+mcc_write(object=mcc, out_dir='./output/mcatac/mmcortex_mcc', overwrite = T)
+mcc <- mcc_read('./output/mcatac/mmcortex_mcc/')
+mcc_to_tracks(mc_counts = mcc, track_prefix = "mmcortex", overwrite = T, create_marginal_track = T)
 
 # pks_95 <- call_peaks(marginal_track = 'mmcortex.marginal', 
 #                     quantile_thresh = 0.95, 

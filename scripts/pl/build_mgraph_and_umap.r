@@ -21,7 +21,7 @@ mc = scdb_mc(nm)
 feats = scdb_gset(nm)
 feats_f = feats
 feats_f@gene_set = feats_f@gene_set[names(feats_f@gene_set) %in% rownames(mc@e_gc)]
-scdb_add_gset(paste0(nm, '_f'), feats_f)
+scdb_add_gset(paste0(nm, '_in_mc'), feats_f)
 
 mcell_mgraph_logistic(mgraph_id=nm, mc_id=nm,feats_gset=paste0(nm,'_f'))
 

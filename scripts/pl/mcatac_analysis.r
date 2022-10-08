@@ -4,6 +4,7 @@ setwd('/net/mraid14/export/tgdata/users/yonshap/proj/mmcortex')
 my_genome <- "mm10"
 gset_genome(my_genome)
 options(gmax.data.size = 1e+9)
+options(mcatac.parallel = 10)
 
 mcmd <- readr::read_tsv('./BonevCollab/mcmd_pl_cort.tsv')
 marg_track <- gtrack.ls('mmcortex.marg')
@@ -20,7 +21,7 @@ peaks_split <- call_peaks(marg_track,
                             genome = my_genome)
 peaks_split$peak_name <- peak_names(peaks_split)
 
-mcc <- mcc_read("./data/mmcortex_mcc/")
+mcc <- mcc_read("./output/mcatac/mmcortex_mcc/")
 
 mca <- mcc_to_mcatac(mc_counts=mcc, peaks=peaks_split, metadata = mcmd)
 

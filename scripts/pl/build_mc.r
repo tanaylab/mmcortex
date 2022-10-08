@@ -16,7 +16,7 @@ mat = scdb_mat(nm)
 feats = scdb_gset(paste0(nm, '_f'))
 
 mcell_add_cgraph_from_mat_bknn(mat_id=nm,
-                gset_id = paste0(nm),
+                gset_id = paste0(nm, '_filt_lat'),
                 graph_id=paste0(nm),
                 K=100,
                 dsamp=T)

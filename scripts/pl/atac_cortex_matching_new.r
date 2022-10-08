@@ -1,70 +1,209 @@
 library(metacell)
-library(lpsymphony)
 library(pheatmap)
+devtools::load_all("~/src/prego/")
+devtools::load_all("~/src/mcATAC/")
+gset_genome('mm10')
 SEED = 1337
 set.seed(SEED)
 wd = '/net/mraid14/export/tgdata/users/yonshap/proj/mmcortex/'
 setwd(wd)
 scdb_init(base_dir = './scdb', force_reinit = T)
-scfigs_init('./figs')
 
-K = 50
-NUM_EDGE_NODE <- 10
-
-day_mcl_path <- file.path(wd, 'output/mcatac/pl_cort_prom_day_mcls_k=50.rds')
-flow_res_path <- file.path(wd, "output/mcatac/pl_cort_flow_mat.tsv")
-
-mc_rna = scdb_mc('pl_cort')
-prom_sum = scdb_mat('pl_prom_cort')
 mcmd = vroom::vroom('./BonevCollab/mcmd_pl_cort.tsv')
+cust_st_ord = c('Oligodendrocytes','Astrocytes','NSC','IPC_cyc', 'IPC', 'iCPN_early','iCPN_late',
+                      'CPN_L2-3','CPN_L5_6','iCPN/CfuPN','iCfuPN','SCPN','CthPN')
+cust_mc_ord_st = unlist(lapply(cust_st_ord, function(s) setNames(which(mcmd$cell_type == s), 
+                                                                  rep(s, length(which(mcmd$cell_type == s))))))                         
+
+nm <- "pl_cort_feat_peaks"
+mc_rna = scdb_mc('pl_cort')
+mat_feat = scdb_mat(nm)
+mat_prom <- scdb_mat('pl_prom_cort')
+
+day_mat <- mcmd[,grep('^E', colnames(mcmd))]
+colnames(day_mat) <- gsub('E', '', colnames(day_mat))
+
+col_annot = mcmd[,c('metacell', 'cell_type')]
+col_annot = tibble::column_to_rownames(col_annot, 'metacell')
+ann_colors = list('cell_type' = setNames(unique(mcmd$color), unique(mcmd$cell_type)))
+
+gb <- intersect(rownames(mat_prom@mat), rownames(mc_rna@mc_fp))
+mat_prom@mat <- mat_prom@mat[gb,]
+mc_rna@mc_fp <- mc_rna@mc_fp[gb,]
+feats <- scdb_gset('pl_filt_lat')
+feats <- names(feats@gene_set)
+gbf <- intersect(gb,feats)
+legc <- log2(1e-5 + mc_rna@e_gc)
+
+cs <- Matrix::colSums(mat_feat@mat)
+csp <- Matrix::colSums(mat_prom@mat)
+mat_ds <- scm_downsamp(mat_feat@mat, quantile(cs, 0.1))
+mat_ds_prom <- scm_downsamp(mat_prom@mat, min(csp))
+bad_ct <- c('Oligodendrocytes','Astrocytes','NSC', 'IPC', 'IPC_cyc')
+### 13:18 are days of samples
+sc_res <- lapply(13:18, function(d) {
+    cells_day <- colnames(mat_ds)[colnames(mat_ds) %in% rownames(mat_feat@cell_metadata)[mat_feat@cell_metadata$day == d]]
+    cells_day_prom <- colnames(mat_ds_prom)[colnames(mat_ds_prom) %in% cells_day]
+    
+    mc_ord_day <- cust_mc_ord_st[cust_mc_ord_st %in% which(day_mat[,as.character(d)] >= 5)]
+    
+    sc_cor <- tgs_cor(log2(1+as.matrix(mat_ds[,cells_day])))
+    
+    # sc_cor_mc <- tgs_cor(log2(1+as.matrix(mat_ds_prom[gbf,cells_day_prom])),
+    #                         mc_rna@mc_fp[intersect(gb,feats),mc_ord_day], 
+    #                         spearman = T)
+    
+    # sc_mc_cor_max <- apply(sc_cor_mc, 1, which.max)
+    # ct_mc_cor_max <- mcmd$cell_type[mc_ord_day[sc_mc_cor_max]]
+    # has_mc_neur <- which(!(ct_mc_cor_max %in% bad_ct))
+    # sc_neur <- rownames(sc_cor_mc)[has_mc_neur]
+    # mcs_neur <- unique(mc_ord_day[sc_mc_cor_max[has_mc_neur]])
+    # sc_cor_neur <- tgs_cor(log2(1+as.matrix(mat_ds[, intersect(sc_neur, cells_day)])))
+    # sc_neur_cor_mc <- tgs_cor(log2(1+as.matrix(mat_ds_prom[gbf,intersect(sc_neur, cells_day)])),
+    #                             mc_rna@mc_fp[gbf,mcs_neur[order(match(mcmd$cell_type[mcs_neur], cust_st_ord))]],
+    #                             spearman = T)
+    return(list(sc_cor = sc_cor
+            #     sc_cor_neur = sc_cor_neur, 
+            #     sc_cor_mc = sc_cor_mc,
+            #    sc_neur_cor_mc = sc_neur_cor_mc
+               ))
+})
+
+sc_cor_kms <- parallel::mclapply(sc_res, function(x) tglkmeans::TGL_kmeans(x$sc_cor, k = 30, seed = SEED), mc.cores = 6)
+saveRDS(sc_cor_kms, './output/mcatac/microcluster_assignment.RDS')
 
 
-## ATAC gene correlation structure
+mcl_days <- mapply(FUN = function(d, km) {
+    cells_day <- colnames(mat_ds)[colnames(mat_ds) %in% rownames(mat_feat@cell_metadata)[mat_feat@cell_metadata$day == d]]
+    mcls_day <- t(tgs_matrix_tapply(as.matrix(mat_ds[,cells_day]), km$cluster, sum))
+    mcls_day <- as(mcls_day, 'dgCMatrix')
+    return(mcls_day)
+},  d= 13:18, km=  sc_cor_kms)
 
-cor_atac_gene = tgs_cor(t(as.matrix(prom_sum@mat[gb,])), spearman = T)
-dim(cor_atac_gene)[[1]]/50
-atac_g_km = tglkmeans::TGL_kmeans(cor_atac_gene, k = 200, metric = 'pearson')
+mcl_all <- do.call('cbind', mcl_days)
+colnames(mcl_all) <- as.character(sapply(13:18, function(x) stringr::str_c(x, 1:30, sep = '_')))
+a_legc <- log2(1e-5 + t(t(mcl_all/colSums(mcl_all))))
+colnames(a_legc) <- colnames(mcl_all) 
+km_a_legc <- tglkmeans::TGL_kmeans(as.matrix(a_legc), k = 80)
 
-save_pheatmap_png <- function(x, filename, width=2500, height=2500, res = 150) {
-  png(filename, width = width, height = height, res = res)
-  grid::grid.newpage()
-  grid::grid.draw(x$gtable)
-  dev.off()
+load("/net/mraid14/export/tgdata/users/atanay/proj/mmcortex/work0922/data/atac_clsts_mmcortex.Rda",v=T)
+old_clust_vec <- atac_clsts$km$cluster[atac_clsts$km$cluster %in% atac_clsts$vclst_nms]
+
+seq_coords <- misha.ext::convert_10x_peak_names_to_misha_intervals(rownames(a_legc))
+
+seqs_cl <- lapply(sort(unique(km_a_legc$cluster)), function(cl) gseq.extract(seq_coords[km_a_legc$cluster == cl,]))
+
+seqs_all <- unlist(seqs_cl)
+
+clust_ind_ls <- lapply(sort(unique(km_a_legc$cluster)), function(cl) ifelse(km_a_legc$cluster == cl, 1, 0))
+clust_ind_mat <- sapply(sort(unique(km_a_legc$cluster)), function(cl) ifelse(km_a_legc$cluster == cl, 1, 0))
+
+keys_to_take <- unique(unlist(sapply(c('POU3', 'NEURO', 'SOX2'), function(g) grep(g, pssms[[1]][[1]]$track))))
+names(keys_to_take) <- unique(unlist(sapply(c('POU3', 'NEURO', 'SOX2'), function(g) grep(g, pssms[[1]][[1]]$track,v=T))))
+pssms_to_take <- lapply(keys_to_take, function(k) pssms[[2]][[1]][pssms[[2]][[1]]$key == k,])
+
+samp_inds <- sample(1:length(clust_ind_ls), 10)
+pwms_neuro <- parallel::mclapply(samp_inds, function(i) prego::regress_pwm(sequences = seqs_all, 
+                                                                            response = clust_ind_ls[[i]], 
+                                                                            motif = pssms_to_take$NEUROG2), 
+                                                                            mc.cores = 10)
+pwms_null <- parallel::mclapply(clust_ind_ls, function(rs) prego::regress_pwm(sequences = seqs_all, response = rs), mc.cores = 16)
+
+res <- regress_pwm.two_phase(seqs_all, clust_ind_ls[[1]], two_phase_sample_frac = c(0.1, 1), first_phase_metric = "ks")
+
+# pwms <- parallel::mcmapply(FUN = function(sq, rs) prego::regress_pwm(sequences = sq, response = rs, ), sq = head(seqs_cl), rs = head(clust_ind_ls), mc.cores = 6)
+# sc_cor_neur_kms <- parallel::mclapply(sc_res, function(x) tglkmeans::TGL_kmeans(x$sc_cor_neur, k = 50), mc.cores = 6)
+
+plot_cor <- function(x,y,km,d) {
+    kmx <- km
+    xx <- x[order(kmx$cluster),order(kmx$cluster)]
+    diag(xx) <- 0
+    yy <- y[order(kmx$cluster),]
+    clrmp = colorRampPalette(c('blue4','white', 'red4','black'))(100)
+    brks <- c(seq(-1,0,l=33),
+              seq(0.01,0.15,l=33),
+              seq(0.16,1,l=34))
+    # H1 <- ComplexHeatmap::Heatmap(xx, name = 'scATAC-scATAC', col = clrmp, 
+    #                         # breaks = brks, 
+    #                         cluster_rows = F, 
+    #                         cluster_columns = F, 
+    #                         show_row_names = F, 
+    #                         show_column_names = F)
+    # column_ha = HeatmapAnnotation(cell_type = mcmd$cell_type[cust_mc_ord_st[cust_mc_ord_st %in% which(day_mat[,as.character(d)] >= 5)]], col = list(cell_type = ann_colors$cell_type), show_annotation_name = F)
+    # H2 <- ComplexHeatmap::Heatmap(yy, name = 'scATAC-mc', top_annotation = column_ha, 
+    #                                 col = clrmp, 
+    #                                 # breaks = brks, 
+    #                                 cluster_rows = F, 
+    #                                 cluster_columns = F, 
+    #                                 show_row_names = F, 
+    #                                 show_column_names = F)
+    # htl <- H1 + H2
+    # png(file.path(wd, 'figs/scatac_cor_per_day_k=50', paste0(d, '_CH.png')), h = 1600, w = 3200)
+    # draw(htl)
+    # dev.off()
+    p1 <- pheatmap(xx, cluster_cols = F, cluster_rows = F, show_colnames = F, show_rownames = F, color = clrmp,silent = T, breaks = brks)
+    p2 <- pheatmap(yy, cluster_cols = F, cluster_rows = F, show_colnames = F, show_rownames = F, color = clrmp,silent = T, breaks = brks,
+                    annotation_col = col_annot,
+                    annotation_colors = ann_colors)
+    # save_pheatmap_png(p1, file.path(wd, 'figs/scatac_cor_per_day_k=50', paste0(d, 'sc-sc.png')))
+    # save_pheatmap_png(p2, file.path(wd, 'figs/scatac_cor_per_day_k=50', paste0(d, 'sc-mc.png')))
+    save_pheatmap_png(p1, file.path(wd, 'figs/scatac_cor_per_day_k=50', paste0(d, 'sc-sc_neuro.png')))
+    save_pheatmap_png(p2, file.path(wd, 'figs/scatac_cor_per_day_k=50', paste0(d, 'sc-mc_neuro.png')))
 }
+sc_cors <- lapply(sc_res, function(x) x$sc_cor)
+sc_cor_mc <- lapply(sc_res, function(x) x$sc_cor_mc)
+sc_neur_cors <- lapply(sc_res, function(x) x$sc_cor_neur)
+sc_neur_cor_mc <- lapply(sc_res, function(x) x$sc_neur_cor_mc)
+aa <- parallel::mcmapply(FUN = function(x,y,km,d) plot_cor(x,y,km,d), 
+                                            x = sc_cors, 
+                                            y = sc_cor_mc, 
+                                            km = sc_cor_kms, 
+                                            d = 13:18, 
+                                            mc.cores = 6)
+bb <- parallel::mcmapply(FUN = function(x,y,km,d) plot_cor(x,y,km,d), x = sc_neur_cors, 
+                                                        y = sc_neur_cor_mc, 
+                                                        km = sc_cor_neur_kms, 
+                                                        d = 13:18, 
+                                                        mc.cores = 6)
 
-mcell_add_gene_stat(mat_id = 'pl_prom', gstat_id = 'pl_prom', force = F)
+# NUM_EDGE_NODE <- 10
+# day_mcl_path <- file.path(wd, 'output/mcatac/pl_cort_prom_day_mcls_k=50.rds')
+# flow_res_path <- file.path(wd, "output/mcatac/pl_cort_flow_mat.tsv")
+# library(lpsymphony)
 
-gstat = scdb_gstat('pl_prom')
+# mcell_add_gene_stat(mat_id = nm, gstat_id = nm, force = F)
 
-png('./figs/atac_feat.png', h=1000,w=1000,r=150)
-plot(log(gstat$ds_mean), gstat$ds_log_varmean)
-dev.off()
+# gstat = scdb_gstat(nm)
 
-x = log(gstat$ds_mean)
-init_filt = which(x >= -5)
-y = gstat$ds_log_varmean[init_filt]
-name_filt = gstat$name
-x = x[init_filt]
+# png(glue::glue('./figs/{nm}_atac_feat.png'), h=1000,w=1000,r=150)
+# plot(log(gstat$ds_mean), gstat$ds_log_varmean)
+# dev.off()
 
-xcut = cut(x, breaks = seq(min(x), max(x), l = 20))
+# x = log(gstat$ds_mean)
+# init_filt = which(x >= -4)
+# y = gstat$ds_log_varmean[init_filt]
+# name_filt = gstat$name
+# x = x[init_filt]
 
-top_q_inds = lapply(levels(xcut), function(l) {inds = which(xcut == l); 
-                                  xfilt = y[inds]; 
-                                  xtop = head(inds[order(xfilt, decreasing = T)], 30); 
-                                  return(xtop)
-                                 }
-      )
+# xcut = cut(x, breaks = seq(min(x), max(x), l = 50))
 
-names(top_q_inds) = levels(xcut)
+# top_q_inds = lapply(levels(xcut), function(l) {inds = which(xcut == l); 
+#                                   xfilt = y[inds]; 
+#                                   xtop = head(inds[order(xfilt, decreasing = T)], 30); 
+#                                   return(xtop)
+#                                  }
+#       )
 
-feats = intersect(rownames(gstat)[init_filt[unlist(top_q_inds)]], rownames(mc_rna@mc_fp))
+# names(top_q_inds) = levels(xcut)
 
-png('./figs/atac_feat_select.png', h=1000,w=1000,r=150)
-plot(log(gstat$ds_mean), gstat$ds_log_varmean)
+# feats = intersect(rownames(gstat)[init_filt[unlist(top_q_inds)]], rownames(mc_rna@mc_fp))
 
-points(x[sort(unlist(top_q_inds))], y[sort(unlist(top_q_inds))], col = 'red', pch = 16)
+# png(glue::glue('./figs/{nm}_atac_feat_select.png'), h=1000,w=1000,r=150)
+# plot(log(gstat$ds_mean), gstat$ds_log_varmean)
 
-dev.off()
+# points(x[sort(unlist(top_q_inds))], y[sort(unlist(top_q_inds))], col = 'red', pch = 16)
+
+# dev.off()
 
 ifn1_genes = c('Isg15', 'Wars', 'Ifit1')
 cell_cyc = c('Mki67', 'Pcna', 'Smc4', 'Mcm3', 'Top2a')

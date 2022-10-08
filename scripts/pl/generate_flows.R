@@ -13,16 +13,18 @@ SEED = 1337
 set.seed(SEED)
 
 nm = 'pl_cort'
+mat_id <- 'pl_cort'
+mc_id <- nm
 mgraph_id = nm
-# net_id = paste0(nm, '_test')
-net_id = nm
+net_id = paste0(nm, '_test')
+# net_id = nm
 flow_id = net_id
 fig_dir = "figs/"
-occ2 = 1e+04
+occ2 = 1e+01
 max_div_per_day = 2
 
-mat = scdb_mat(nm)
-mc = scdb_mc(nm)
+mat = scdb_mat(mat_id)
+mc = scdb_mc(mc_id)
 
 cell_time = mat@cell_metadata[names(mc@mc),"t"]
 cell_time = cell_time - 12
@@ -33,12 +35,9 @@ time_age_groups = c(13:18)
 
 get_mc_cc = function() {
   ## function from Markus
-  mat_id = nm
-  mc_id = nm
-
   tag = nm
-  m_0 = 0.006
-  s_0 = 0.002
+  m_0 = 0.0025
+  s_0 = 0.001
   m_genes = c("Mki67","Cenpf","Top2a","Smc4","Ube2c","Ccnb1","Cdk1","Arl6ip1","Ankrd11","Hmmr",
                 "Cenpa","Tpx2","Aurka","Kif4", "Kif2c","Bub1b","Ccna2", "Kif23","Kif20a","Sgo2a",
                 "Sgo2b","Smc2", "Kif11", "Cdca2","Incenp","Cenpe")
@@ -72,7 +71,7 @@ cc_score = mc_cc$cc_score
 
 eomes_egc <- mc@e_gc['Eomes',]
 eomes_egc_lin <- (eomes_egc - min(eomes_egc))/(max(eomes_egc) - min(eomes_egc))
-eomes_factor <- (1-0.5*plogis(eomes_egc_lin, location = 0.1, scale = 0.1))
+eomes_factor <- (1-0.5*plogis(eomes_egc_lin, location = 0.1, scale = 0.01))
 mature_genes <- c('Mef2c', 'Mapt')
 mature_genes_egc <- colSums(mc@e_gc[mature_genes,])
 mature_genes_egc_lin <- (mature_genes_egc - min(mature_genes_egc))/(max(mature_genes_egc) - min(mature_genes_egc))
@@ -83,24 +82,27 @@ mature_genes_factor <- 1
 #             select(1,3) %>% 
 #             tibble::rownames_to_column(.)
 
-prol_df = dplyr::mutate(mc_cc, proliferation_rate = (2**as.numeric(max_div_per_day*((100-mc_cc$cc_score)/100)*eomes_factor))*mature_genes_factor) %>% 
+prol_df = dplyr::mutate(mc_cc, proliferation_rate = (2**as.numeric(max_div_per_day*((101-mc_cc$cc_score)/100)*eomes_factor))*mature_genes_factor) %>% 
             select(1,3) %>% 
             tibble::rownames_to_column(.)
 # prol_df = dplyr::mutate(mc_cc, proliferation_rate = as.numeric(max_div_per_day*(100-mc_cc$cc_score)*(1 - eomes_egc_lin)*(1 - 0.4*plogis(mc_mean_day,mean(c(13,18)),.15))/100)) %>% 
 #             select(1,3) %>% 
 #             tibble::rownames_to_column(.)
 
-readr::write_tsv(x=prol_df, file = './data/pl_cort_prol_rates.tsv')
+# readr::write_tsv(x=prol_df, file = glue::glue('./data/{nm}_prol_rates.tsv'))
+
+capacity_var_factor <- 0.3
 
 mcell_mctnet_from_mgraph(net_id = net_id,mgraph_id = mgraph_id,cell_time = cell_time,
-                         mc_proliferation_rate_fn = "data/pl_cort_prol_rates.tsv",
+                         mc_proliferation_rate_fn = glue::glue('./data/{nm}_prol_rates.tsv'),
                          time_age_groups = time_age_groups,
+                         capacity_var_factor = capacity_var_factor,
                          off_capacity_cost2 = occ2
                          )
 
 
-flow_tolerance = 0.02
-max_flow_tolerance = 0.1
+flow_tolerance = 0.05
+max_flow_tolerance = 0.05
 # flow_tolerance = 0
 # max_flow_tolerance = 0
     
@@ -121,9 +123,13 @@ mcf = mctnetflow_comp_propagation(mcf)
 #adding back the object with the network and flows
 scdb_add_mctnetflow(flow_id, mcf)
 
+mcmd = readr::read_tsv('~/raid/proj/mmcortex/BonevCollab/mcmd_pl_cort.tsv')
+# color_key = unique(mcmd[,c('cell_type', 'color')])
 cust_st_ord = c('Oligodendrocytes','Astrocytes','NSC','IPC_cyc', 'IPC','iCPN_early','iCPN_late',
                       'CPN_L2-3','CPN_L5_6','iCPN/CfuPN','iCfuPN','SCPN','CthPN')
-mcmd = readr::read_tsv('./BonevCollab/mcmd_pl_cort_freeze_1_9_22.tsv')
-color_key = unique(mcmd[,c('st', 'color')])
-color_ord = color_key$color[match(cust_st_ord, color_key$st)]
-mctnetwork_plot_net(net_id, net_id, fn = './figs/pl_cort_test_plot_net_neg_growth_coef.png', colors_ordered=color_ord)
+# mcmd = readr::read_tsv('./BonevCollab/mcmd_pl_cort_freeze_1_9_22.tsv')
+cust_st_ord_mc = unlist(lapply(cust_st_ord, function(u) 
+    setNames(which(mcmd$cell_type == u), rep(u, length(which(mcmd$cell_type == u))))))
+# 
+# color_ord = color_key$color[match(cust_st_ord, color_key$cell_type)]
+mctnetwork_plot_net(net_id, net_id, fn = glue::glue('./figs/{flow_id}.png'), mc_ord = cust_st_ord_mc, flow_thresh =0)
