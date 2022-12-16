@@ -3,7 +3,8 @@ library(pheatmap)
 devtools::load_all("~/src/prego/")
 devtools::load_all("~/src/mcATAC/")
 gset_genome('mm10')
-SEED = 1337
+SEED <- 1337
+K <- 30
 set.seed(SEED)
 wd = '/net/mraid14/export/tgdata/users/yonshap/proj/mmcortex/'
 setwd(wd)
@@ -69,7 +70,7 @@ sc_res <- lapply(13:18, function(d) {
                ))
 })
 
-sc_cor_kms <- parallel::mclapply(sc_res, function(x) tglkmeans::TGL_kmeans(x$sc_cor, k = 30, seed = SEED), mc.cores = 6)
+sc_cor_kms <- parallel::mclapply(sc_res, function(x) tglkmeans::TGL_kmeans(x$sc_cor, k = K, seed = SEED), mc.cores = 6)
 saveRDS(sc_cor_kms, './output/mcatac/microcluster_assignment.RDS')
 
 

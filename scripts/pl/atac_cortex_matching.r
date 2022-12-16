@@ -18,13 +18,6 @@ mc_rna = scdb_mc('pl_cort')
 prom_sum = scdb_mat('pl_prom_cort')
 mcmd = vroom::vroom('./BonevCollab/mcmd_pl_cort.tsv')
 
-
-## ATAC gene correlation structure
-
-cor_atac_gene = tgs_cor(t(as.matrix(prom_sum@mat[gb,])), spearman = T)
-dim(cor_atac_gene)[[1]]/50
-atac_g_km = tglkmeans::TGL_kmeans(cor_atac_gene, k = 200, metric = 'pearson')
-
 save_pheatmap_png <- function(x, filename, width=2500, height=2500, res = 150) {
   png(filename, width = width, height = height, res = res)
   grid::grid.newpage()

@@ -78,9 +78,9 @@ readr::write_tsv(prol_df, file = './data/pl_cort_prol_rates_test_gs.tsv')
 # capacity_var_factor = 0.5
 
 # occ2 = 10**seq(1,7,1)
-occ2 = 10**seq(1,6,1)
-flow_tol = seq(0,0.05,0.01)
-cap_var = c(0.05, seq(0.1,0.5,0.1))
+occ2 = 10**seq(4,6,1)
+flow_tol = seq(0.01,0.05,0.01)
+cap_var = c(0.05, seq(0.1,0.3,0.1))
 param_gs = expand.grid(occ2, flow_tol, cap_var)
 colnames(param_gs) = c('occ2', 'flow_tol', 'cap_var')
 # print(nrow(param_gs))
@@ -99,11 +99,11 @@ if (!dir.exists(gs_mcf_dir)) {dir.create(gs_mcf_dir)}
 mcmd = readr::read_tsv('./BonevCollab/mcmd_pl_cort.tsv')
 cust_st_ord = c('Oligodendrocytes','Astrocytes','NSC','IPC_cyc', 'IPC', 'iCPN_early','iCPN_late',
                           'CPN_L2-3','CPN_L5_6','iCPN/CfuPN','iCfuPN','SCPN','CthPN')
-cust_mc_ord_st = unlist(lapply(cust_st_ord, function(s) setNames(which(mcmd$cell_type == s), 
+cust_mc_ord_st = unlist(lapply(cust_st_ord, function(s) setNames(which(mcmd$cell_type == s)[order(mcmd$mean_day[which(mcmd$cell_type == s)])], 
                                                                   rep(s, length(which(mcmd$cell_type == s))))))                         
 
 color_key = unique(mcmd[,c('cell_type', 'color')])
-color_ord = color_key$color[match(cust_st_ord, color_key$st)]
+color_ord = color_key$color[match(cust_st_ord, color_key$cell_type)]
 
 scpn_mc = which(mcmd$cell_type == 'SCPN')
 cthpn_mc = which(mcmd$cell_type == 'CthPN')

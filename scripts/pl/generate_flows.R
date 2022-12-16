@@ -16,11 +16,11 @@ nm = 'pl_cort'
 mat_id <- 'pl_cort'
 mc_id <- nm
 mgraph_id = nm
-net_id = paste0(nm, '_test')
-# net_id = nm
+# net_id = paste0(nm, '_test')
+net_id = nm
 flow_id = net_id
 fig_dir = "figs/"
-occ2 = 1e+01
+occ2 = 1e+04
 max_div_per_day = 2
 
 mat = scdb_mat(mat_id)
@@ -91,7 +91,7 @@ prol_df = dplyr::mutate(mc_cc, proliferation_rate = (2**as.numeric(max_div_per_d
 
 # readr::write_tsv(x=prol_df, file = glue::glue('./data/{nm}_prol_rates.tsv'))
 
-capacity_var_factor <- 0.3
+capacity_var_factor <- 0.2
 
 mcell_mctnet_from_mgraph(net_id = net_id,mgraph_id = mgraph_id,cell_time = cell_time,
                          mc_proliferation_rate_fn = glue::glue('./data/{nm}_prol_rates.tsv'),
@@ -101,8 +101,8 @@ mcell_mctnet_from_mgraph(net_id = net_id,mgraph_id = mgraph_id,cell_time = cell_
                          )
 
 
-flow_tolerance = 0.05
-max_flow_tolerance = 0.05
+flow_tolerance = 0.04
+max_flow_tolerance = 0.04
 # flow_tolerance = 0
 # max_flow_tolerance = 0
     
@@ -129,7 +129,7 @@ cust_st_ord = c('Oligodendrocytes','Astrocytes','NSC','IPC_cyc', 'IPC','iCPN_ear
                       'CPN_L2-3','CPN_L5_6','iCPN/CfuPN','iCfuPN','SCPN','CthPN')
 # mcmd = readr::read_tsv('./BonevCollab/mcmd_pl_cort_freeze_1_9_22.tsv')
 cust_st_ord_mc = unlist(lapply(cust_st_ord, function(u) 
-    setNames(which(mcmd$cell_type == u), rep(u, length(which(mcmd$cell_type == u))))))
+    setNames(which(mcmd$cell_type == u)[order(mcmd$mean_day[which(mcmd$cell_type == u)])], rep(u, length(which(mcmd$cell_type == u))))))
 # 
 # color_ord = color_key$color[match(cust_st_ord, color_key$cell_type)]
 mctnetwork_plot_net(net_id, net_id, fn = glue::glue('./figs/{flow_id}.png'), mc_ord = cust_st_ord_mc, flow_thresh =0)
