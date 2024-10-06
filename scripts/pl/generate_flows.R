@@ -1,10 +1,8 @@
-wd = '/net/mraid14/export/tgdata/users/yonshap/proj/mmcortex/'
+wd = '/net/mraid20/export/tgdata/users/yonshap/proj/mmcortex/'
 setwd(wd)
-library(devtools)
-# library("metacell")
+library("metacell")
 library(Matrix)
-load_all("~/src/metacell/")
-load_all("~/src/metacell.flow/")
+devtools::load_all("~/src/metacell.flow/")
 scdb_init("scdb/",force_reinit = T)
 scfigs_init("figs")
 scdb_flow_init()
@@ -68,7 +66,10 @@ get_mc_cc = function() {
 
 mc_cc = get_mc_cc()
 cc_score = mc_cc$cc_score
-
+# print(head(cc_score))
+save(cc_score, file = glue::glue(file.path(wd, 'data/{nm}_cc_score.rda')))
+# load(glue::glue(file.path(wd, 'data/{nm}_cc_score.rda')))
+# print(head(cc_score))
 eomes_egc <- mc@e_gc['Eomes',]
 eomes_egc_lin <- (eomes_egc - min(eomes_egc))/(max(eomes_egc) - min(eomes_egc))
 eomes_factor <- (1-0.5*plogis(eomes_egc_lin, location = 0.1, scale = 0.01))
@@ -132,4 +133,10 @@ cust_st_ord_mc = unlist(lapply(cust_st_ord, function(u)
     setNames(which(mcmd$cell_type == u)[order(mcmd$mean_day[which(mcmd$cell_type == u)])], rep(u, length(which(mcmd$cell_type == u))))))
 # 
 # color_ord = color_key$color[match(cust_st_ord, color_key$cell_type)]
-mctnetwork_plot_net(net_id, net_id, fn = glue::glue('./figs/{flow_id}.png'), mc_ord = cust_st_ord_mc, flow_thresh =0)
+
+source('./scripts/util.r')
+
+mctnetwork_plot_net_YSh(net_id, net_id, fn = glue::glue('./output/metacell_flow/figs/{flow_id}.png'), mc_ord = cust_st_ord_mc, flow_thresh =0)
+
+set_param(param = 'mc_plot_device', value = 'pdf', package = 'metacell')
+mctnetwork_plot_net_YSh(net_id, net_id, plot_pdf = TRUE, fn = glue::glue('./output/metacell_flow/figs/{flow_id}.pdf'), mc_ord = cust_st_ord_mc, flow_thresh =0)

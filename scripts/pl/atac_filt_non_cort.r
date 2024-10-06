@@ -1,3 +1,4 @@
+library(tgstat)
 library(metacell)
 wd = '/net/mraid14/export/tgdata/users/yonshap/proj/mmcortex'
 SEED = 1337
@@ -101,9 +102,6 @@ print(paste('fraction of scATAC profiles filtered out:', length(scatac_to_filt)/
 mcell_mat_ignore_cells('pl_gb_cort', 'pl_gb', union(mat_gb@ignore_cells, scatac_to_filt), F)
 mcell_mat_ignore_cells('pl_prom_cort', 'pl_prom', union(mat_prom@ignore_cells, scatac_to_filt), F)
 mcell_mat_ignore_cells('pl_ig_cort', 'pl_ig', union(mat_ig@ignore_cells, scatac_to_filt), F)
-
-
-
 
 # nms = intersect(rownames(lfp), rownames(promo_peaks))
 # high_var = intersect(rownames(lfp)[apply(lfp, 1, function(x) any(x > 0.8))], rownames(promo_peaks))

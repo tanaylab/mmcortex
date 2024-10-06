@@ -4,7 +4,7 @@ wd = '/net/mraid14/export/tgdata/users/yonshap/proj/mmcortex/'
 setwd(wd)
 mcmd <- readr::read_tsv('./BonevCollab/mcmd_pl_cort.tsv')
 library(metacell)
-scdb_init('scdb')
+scdb_init('scdb', f=T)
 devtools::load_all("~/src/mcATAC/")
 gset_genome("mm10")
 gdb.reload()
@@ -40,8 +40,33 @@ write_sc_counts_from_fragments(fragments_file = './scatac_data/fragments_filtere
 # c2mc <- metacells_from_mcl_flow(flow_path = './data/pl_flow_res.rds', day_mcl_path = './data/pl_cort_prom_day_mcls.rds')
 c2mc <- readr::read_tsv("./output/mcatac/c2mc.tsv")
 
+flow_res_path <- file.path(wd, "output/mcatac/pl_cort_flow_mat.tsv")
+flow_res_results <- readr::read_tsv(flow_res_path)
+frr_mat <- as.matrix(dplyr::select(flow_res_results, -rowname))
+rownames(frr_mat) <- flow_res_results$rowname
+glia_ct <- c('Astrocytes', 'Oligodendrocytes')
+mc_glia <- which(mcmd$cell_type %in% glia_ct)
+nnz_frcs <- apply(frr_mat[c('16_16', '16_20'),], 1, function(x) {sum_glia <- sum(x[mc_glia]); x[mc_glia] <- 0; nnz_mc <- which(x > 0); x_nnz_frc <- x[nnz_mc]/sum(x[nnz_mc]); return(setNames(x_nnz_frc, nnz_mc))})
+nnz_cumsum <- lapply(nnz_frcs, function(x) cumsum(sort(x)))
+flow_by_ct <- t(tgs_matrix_tapply(frr_mat, mcmd$cell_type, sum))
+flow_by_ct_norm <- flow_by_ct/rowSums(flow_by_ct)
+
+famc_new <- do.call('rbind', lapply(c(602, 603), function(x) {
+    scah <- c2mc$cell[c2mc$metacell == x]; 
+    amch <- rownames(frr_mat)[which(frr_mat[,x] > 0)];
+    sca_rn <- runif(n = length(scah))
+    famc_new <- as.numeric(sapply(seq_along(scah), function(i) mc_new <- names(nnz_cumsum[[amch]][nnz_cumsum[[amch]] >= sca_rn[[i]]])[[1]]))
+    # print(cbind(sca_rn, famc_new))
+    return(tibble::enframe(setNames(famc_new, scah), name = 'cell', value = 'metacell'))
+}))
+
+c2mc_new <- c2mc
+c2mc_new$metacell[match(famc_new$cell, c2mc_new$cell)] <- famc_new$metacell
+
+
 scc <- scc_read(path = './data/frag_reads/')
-# mcc <- scc_project_on_mc(sc_counts = scc, cell_to_metacell = dplyr::rename(c2mc, cell_id = cell))
+# mcc <- scc_to_mcc(sc_counts = scc, cell_to_metacell = dplyr::rename(c2mc, cell_id = cell))
+mcc <- scc_to_mcc(sc_counts = scc, cell_to_metacell = dplyr::filter(dplyr::select(dplyr::rename(c2mc_new, cell_id = cell), cell_id, metacell), c2mc_new$cell_id %in% scc@cell_names))
 mcc@metadata <- mcmd
 mcc@rna_egc <- mc@e_gc
 mcc_write(object=mcc, out_dir='./output/mcatac/mmcortex_mcc', overwrite = T)
