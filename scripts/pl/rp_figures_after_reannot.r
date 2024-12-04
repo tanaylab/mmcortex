@@ -33,14 +33,14 @@ library(matrixStats)
 mcmd = vroom::vroom('./BonevCollab/mcmd_pl_cort.tsv')
 color_key = unique(mcmd[,c('cell_type', 'color')])
 
-cust_st_ord = c('Oligodendrocytes','Astrocytes','NSC','IPC_cyc', 'IPC','iCPN/CfuPN', 'iCPN_early','iCPN_late',
+cust_st_ord = c('OPCs','Astrocytes','NSC','IPC_cyc', 'IPC','iCPN/CfuPN', 'iCPN_early','iCPN_late',
                       'CPN_L2-3','CPN_L5_6','iCfuPN','SCPN','CthPN')
 cust_mc_ord_st = unlist(lapply(cust_st_ord, function(s) setNames(which(mcmd$cell_type == s)[order(mcmd$mean_day[which(mcmd$cell_type == s)])], 
                                                                   rep(s, length(which(mcmd$cell_type == s)))
                                                                 )
                                 )
                         )                         
-cust_st_ord2 = c('Oligodendrocytes','Astrocytes','NSC','IPC_cyc', 'IPC', 'iCPN_early','iCPN_late',
+cust_st_ord2 = c('OPCs','Astrocytes','NSC','IPC_cyc', 'IPC', 'iCPN_early','iCPN_late',
                       'CPN_L2-3','CPN_L5_6','iCPN/CfuPN','iCfuPN','SCPN','CthPN')
 cust_mc_ord_st2 = unlist(lapply(cust_st_ord2, function(s) setNames(which(mcmd$cell_type == s)[order(mcmd$mean_day[which(mcmd$cell_type == s)])], 
                                                                   rep(s, length(which(mcmd$cell_type == s)))
@@ -100,11 +100,11 @@ cor_pltmt <- tgs_cor(pltmt)
 options(repr.plot.width = 16)
 options(repr.plot.height = 6)
 
-pheatmap::pheatmap(cor_pltmt[which(mcmd$cell_type %in% c('Astrocytes', 'Oligodendrocytes')),cust_mc_ord_st2], annotation_col = col_annot, annotation_colors = ann_colors, cluster_cols = F)
+pheatmap::pheatmap(cor_pltmt[which(mcmd$cell_type %in% c('Astrocytes', 'OPCs')),cust_mc_ord_st2], annotation_col = col_annot, annotation_colors = ann_colors, cluster_cols = F)
 
 pheatmap::pheatmap(pltmt[unique(unlist(mbm_lst)),which(mcmd$cell_type == 'Astrocytes')])
 
-pheatmap::pheatmap(pltmt[unique(unlist(mbm_lst)),which(mcmd$cell_type == 'Oligodendrocytes')])
+pheatmap::pheatmap(pltmt[unique(unlist(mbm_lst)),which(mcmd$cell_type == 'OPCs')])
 
 legc_avg_ct <- t(tgs_matrix_tapply(legc, mcmd$cell_type, mean))
 
@@ -224,7 +224,7 @@ points(pcu$s[,1], pcu$s[,2], pch = 1)
 points(pcu$s[,1], pcu$s[,2], col = 'green', pch = 16)
 dev.off()
 
-mc_no_glia <- as.numeric(mcmd$metacell[!(mcmd$cell_type %in% c('Astrocytes', 'Oligodendrocytes'))])
+mc_no_glia <- as.numeric(mcmd$metacell[!(mcmd$cell_type %in% c('Astrocytes', 'OPCs'))])
 
 png('./output/metacell_model/figs/differentiation_order_by_ct_no_glia.png', h = 500, w = 350)
 par(las = 2, mar = c(6,10,2,1), cex.lab = 2, cex.axis = 1.5)
@@ -541,7 +541,7 @@ late_neuro_tfs <- get_genes_specific_to_mcs(legc[tfs,], mc_pos = which(mcmd$cell
 ipc_tfs <- get_genes_specific_to_mcs(legc[tfs,], mc_pos = which(mcmd$cell_type %in% c('IPC', 'IPC_cyc')), mc_neg = which(mcmd$cell_type %in% c('NSC', 'CPN_L2-3', 'CthPN')))
 ipc_tfs <- ipc_tfs[ipc_tfs > 1]
 
-nsc_tfs <- get_genes_specific_to_mcs(legc[tfs,], mc_pos = which(mcmd$cell_type %in% c('NSC')), mc_neg = which(mcmd$cell_type %in% c('IPC', 'IPC_cyc', 'Oligodendrocytes', 'Astrocytes')))
+nsc_tfs <- get_genes_specific_to_mcs(legc[tfs,], mc_pos = which(mcmd$cell_type %in% c('NSC')), mc_neg = which(mcmd$cell_type %in% c('IPC', 'IPC_cyc', 'OPCs', 'Astrocytes')))
 nsc_tfs <- nsc_tfs[nsc_tfs > 1]
 
 nsc_tfs <- tfs[st_legc[tfs,'NSC'] >= -14]
@@ -550,12 +550,12 @@ ipc_spec_genes <- get_genes_specific_to_mcs(legc, mc_pos = which(mcmd$cell_type 
 ipc_spec_genes <- ipc_spec_genes[ipc_spec_genes > 2]
 
 nsc_spec_genes <- get_genes_specific_to_mcs(legc, mc_pos = which(mcmd$cell_type %in% c('NSC')), 
-                                            mc_neg = which(mcmd$cell_type %in% c('IPC', 'IPC_cyc', 'Oligodendrocytes', 'Astrocytes'))
+                                            mc_neg = which(mcmd$cell_type %in% c('IPC', 'IPC_cyc', 'OPCs', 'Astrocytes'))
                                            )
 nsc_spec_genes <- nsc_spec_genes[nsc_spec_genes > 2]
 
 nsc_ipc_spec_genes <- get_genes_specific_to_mcs(legc, mc_pos = which(mcmd$cell_type %in% c('NSC', 'IPC' ,'IPC_cyc')), 
-                                            mc_neg = which(mcmd$cell_type %in% c('CthPN', 'CPN_L2-3', 'Oligodendrocytes', 'Astrocytes'))
+                                            mc_neg = which(mcmd$cell_type %in% c('CthPN', 'CPN_L2-3', 'OPCs', 'Astrocytes'))
                                            )
 nsc_ipc_spec_genes <- nsc_ipc_spec_genes[nsc_ipc_spec_genes > 2]
 
@@ -715,7 +715,7 @@ length(ipc_dyn_genes_no_asc_desc)
 
 col_key <- tibble::deframe(color_key)
 
-mcs_in <-cust_mc_ord_st2[names(cust_mc_ord_st2) %in% c('Oligodendrocytes', 'Astrocytes', 'NSC', 'IPC', 'IPC_cyc')]
+mcs_in <-cust_mc_ord_st2[names(cust_mc_ord_st2) %in% c('OPCs', 'Astrocytes', 'NSC', 'IPC', 'IPC_cyc')]
 
 nsc_mcs_ord <- cust_mc_ord_st[names(cust_mc_ord_st) == 'NSC']
 
@@ -983,7 +983,7 @@ plot(nsc_scatter_df, col = col_vec, pch = 16, cex = 1
      # ifelse(col_vec == 'black', 0.5, 1.5)
     )
 
-mcs_in <-cust_mc_ord_st2[names(cust_mc_ord_st2) %in% c('Oligodendrocytes', 'Astrocytes', 'NSC', 'IPC', 'IPC_cyc')]
+mcs_in <-cust_mc_ord_st2[names(cust_mc_ord_st2) %in% c('OPCs', 'Astrocytes', 'NSC', 'IPC', 'IPC_cyc')]
 
 options(repr.plot.width = 12)
 options(repr.plot.height = 6)
@@ -1110,7 +1110,7 @@ nsc_scatter_df <- as.data.frame(t(nsc_avg_cl))
 colnames(nsc_scatter_df) <- paste0('NSC metacell cluster ', colnames(nsc_scatter_df))
 plot(nsc_scatter_df, col = ifelse(f, 'red', 'black'), pch = 16, cex = ifelse(f, 1, 0.5))
 
-mcs_in <- cust_mc_ord_st2[names(cust_mc_ord_st2) %in% c('Oligodendrocytes', 'Astrocytes', 'NSC', 'IPC', 'IPC_cyc')]
+mcs_in <- cust_mc_ord_st2[names(cust_mc_ord_st2) %in% c('OPCs', 'Astrocytes', 'NSC', 'IPC', 'IPC_cyc')]
 
 mcs_in <- cust_mc_ord_st2
 
@@ -1146,7 +1146,7 @@ pp4 <- pheatmap::pheatmap(ma[,hc_cols] - rowMeans(ma), gaps_row = c(length(nsc_d
 
 save_pheatmap_png(pp3, './output/metacell_model/nsc_dyn_tf_meth_prc_genes.png', h = 2200, w = 1500)
 
-pp3 <- pheatmap::pheatmap(ma[,cust_mc_ord_st2[names(cust_mc_ord_st2) %in% c('Oligodendrocytes', 'Astrocytes', 'NSC', 'IPC', 'IPC_cyc')]], fontsize_row = 14,
+pp3 <- pheatmap::pheatmap(ma[,cust_mc_ord_st2[names(cust_mc_ord_st2) %in% c('OPCs', 'Astrocytes', 'NSC', 'IPC', 'IPC_cyc')]], fontsize_row = 14,
                           cluster_rows = T, cluster_cols = F, annotation_col = col_annot, annotation_colors = ann_colors, annotation_legend = F, clustering_method = 'ward.D2',
         # col = colorRampPalette(c('white', 'orange', 'red', 'purple', 'black'))(100)
          col = colorRampPalette(c('white', 'orange','red3', 'purple', 'black'))(100),
@@ -1154,19 +1154,19 @@ pp3 <- pheatmap::pheatmap(ma[,cust_mc_ord_st2[names(cust_mc_ord_st2) %in% c('Oli
                          )
 
 # putative_gliogenic <- names(which(cor_gene_legc_w_md_in_st[,'NSC'] >= 0.5 & 
-#                                   (st_legc[,'Astrocytes'] >= -15 | st_legc[,'Oligodendrocytes'] >= -15) & 
+#                                   (st_legc[,'Astrocytes'] >= -15 | st_legc[,'OPCs'] >= -15) & 
 #                                    (st_legc[,'CthPN'] <= -15 & st_legc[,'CPN_L2-3'] <= -15)))
 # length(putative_gliogenic)
 
 # nsc_asc_no_glia <- names(which(cor_gene_legc_w_md_in_st[,'NSC'] >= 0.5 & 
-#                                   (st_legc[,'Astrocytes'] <= -15 & st_legc[,'Oligodendrocytes'] >= -15)
+#                                   (st_legc[,'Astrocytes'] <= -15 & st_legc[,'OPCs'] >= -15)
 #                                    # (st_legc[,'CthPN'] <= -15 | st_legc[,'CPN_L2-3'] <= -15))
 #                         ))
 # length(nsc_asc_no_glia)
 
 # putative_neurogenic <- names(which(cor_gene_legc_w_md_in_st[,'NSC'] <= -0.5 & 
 #                                    (st_legc[,'IPC'] >= -15 | st_legc[,'IPC_cyc'] >= -15) & 
-#                                    (st_legc[,'Astrocytes'] <= -15 & st_legc[,'Oligodendrocytes'] <= -15)))
+#                                    (st_legc[,'Astrocytes'] <= -15 & st_legc[,'OPCs'] <= -15)))
 # length(putative_neurogenic)
 
 # pltmt <- legc[c(putative_gliogenic, putative_neurogenic),]
@@ -1286,11 +1286,11 @@ save_pheatmap_png(p_mod_avg_hm, './output/metacell_model/figs/avg_mod_heatmap.pn
 
 # png('./output/metacell_model/figs/differential_gene_modules_nsc_ipc_scatter.png', h = 3500, w = 1750)
 # par(mfrow = c(length(mod_in), 4), cex.lab = 2, cex.axis = 2)
-# inds_nsc <- cust_mc_ord_st[names(cust_mc_ord_st) %in% c('NSC', 'Astrocytes', 'Oligodendrocytes')]
+# inds_nsc <- cust_mc_ord_st[names(cust_mc_ord_st) %in% c('NSC', 'Astrocytes', 'OPCs')]
 # inds_ipc <- cust_mc_ord_st[names(cust_mc_ord_st) %in% c('IPC', 'IPC_cyc')]
 # inds_imm <- cust_mc_ord_st[names(cust_mc_ord_st) %in% c('iCPN/CfuPN', 'iCfuPN', 'iCPN_early', 'iCPN_late')]
 # inds_neu <- cust_mc_ord_st[names(cust_mc_ord_st) %in% c('CthPN', 'SCPN','CPN_L2-3', 'CPN_L5_6')]
-# # inds_gli <- cust_mc_ord_st[names(cust_mc_ord_st) %in% c('Astrocytes', 'Oligodendrocytes')]
+# # inds_gli <- cust_mc_ord_st[names(cust_mc_ord_st) %in% c('Astrocytes', 'OPCs')]
 # legc_mrm <- mmc_gm_avg_module - rowMeans(mmc_gm_avg_module)
 # tvt <- sapply(names(mod_in), function(md) {
 #     mal <- max(abs(legc_mrm[md,]))
@@ -1338,11 +1338,11 @@ mod_in
 
 png('./output/metacell_model/figs/non_differential_gene_modules_nsc_ipc_scatter.png', h = 4000*length(mod_in)/(length(mod_in) + length(mod_out)), w = 750)
 par(mfrow = c(length(mod_out), 4), cex.lab = 2, cex.axis = 2)
-inds_nsc <- cust_mc_ord_st[names(cust_mc_ord_st) %in% c('NSC', 'Astrocytes', 'Oligodendrocytes')]
+inds_nsc <- cust_mc_ord_st[names(cust_mc_ord_st) %in% c('NSC', 'Astrocytes', 'OPCs')]
 inds_ipc <- cust_mc_ord_st[names(cust_mc_ord_st) %in% c('IPC', 'IPC_cyc')]
 inds_imm <- cust_mc_ord_st[names(cust_mc_ord_st) %in% c('iCPN/CfuPN', 'iCfuPN', 'iCPN_early', 'iCPN_late')]
 inds_neu <- cust_mc_ord_st[names(cust_mc_ord_st) %in% c('CthPN', 'SCPN','CPN_L2-3', 'CPN_L5_6')]
-# inds_gli <- cust_mc_ord_st[names(cust_mc_ord_st) %in% c('Astrocytes', 'Oligodendrocytes')]
+# inds_gli <- cust_mc_ord_st[names(cust_mc_ord_st) %in% c('Astrocytes', 'OPCs')]
 legc_mrm <- mmc_gm_avg_module - rowMeans(mmc_gm_avg_module)
 tvt <- sapply(mod_out, function(md) {
     mal <- max(abs(legc_mrm[md,]))
@@ -1381,11 +1381,11 @@ dev.off()
 
 png('./output/metacell_model/figs/differential_gene_modules_nsc_ipc_scatter.png', h = 4000*length(mod_in)/(length(mod_in) + length(mod_out)), w = 750)
 par(mfrow = c(length(mod_in), 4), cex.lab = 2, cex.axis = 2)
-inds_nsc <- cust_mc_ord_st[names(cust_mc_ord_st) %in% c('NSC', 'Astrocytes', 'Oligodendrocytes')]
+inds_nsc <- cust_mc_ord_st[names(cust_mc_ord_st) %in% c('NSC', 'Astrocytes', 'OPCs')]
 inds_ipc <- cust_mc_ord_st[names(cust_mc_ord_st) %in% c('IPC', 'IPC_cyc')]
 inds_imm <- cust_mc_ord_st[names(cust_mc_ord_st) %in% c('iCPN/CfuPN', 'iCfuPN', 'iCPN_early', 'iCPN_late')]
 inds_neu <- cust_mc_ord_st[names(cust_mc_ord_st) %in% c('CthPN', 'SCPN','CPN_L2-3', 'CPN_L5_6')]
-# inds_gli <- cust_mc_ord_st[names(cust_mc_ord_st) %in% c('Astrocytes', 'Oligodendrocytes')]
+# inds_gli <- cust_mc_ord_st[names(cust_mc_ord_st) %in% c('Astrocytes', 'OPCs')]
 legc_mrm <- mmc_gm_avg_module - rowMeans(mmc_gm_avg_module)
 tvt <- sapply(mod_in, function(md) {
     mal <- max(abs(legc_mrm[md,]))
@@ -2055,7 +2055,7 @@ save_pheatmap_png(p_ct_per_day, './figs/ct_per_day.png', h = 1200, w = 900, res 
 
 load('./data/pl_cort_cc_score.rda')
 
-cti <- c('Astrocytes', 'NSC', 'Oligodendrocytes', 'IPC', 'IPC_cyc')
+cti <- c('Astrocytes', 'NSC', 'OPCs', 'IPC', 'IPC_cyc')
 ct_mc <- which(mcmd$cell_type %in%  cti)
 
 mc_ag = table(mc@mc,mat@cell_metadata[names(mc@mc),"day"])
@@ -2595,7 +2595,7 @@ st_legc <- as.data.frame(t(tgs_matrix_tapply(legc, mcmd$cell_type, mean)))
 # c('Pcna', 'Mki67', 'Top2a') %in% names(gs@gene_set)
 # gs@gene_set[c('Pcna', 'Mki67', 'Top2a')]
 
-# dror_path <- "/net/mraid14/export/tgdata/users/drorba/ambient/out/mmcortex_new/"
+# dror_path <- "/net/mraid20/export/tgdata/users/drorba/ambient/out/mmcortex_new/"
 
 # options(repr.plot.width = 20)
 # options(repr.plot.height = 8)
@@ -2949,7 +2949,7 @@ save_pheatmap_png(ppp, './figs/hi_var_tfs_nsc_ipc.png')
 
 cor_legc_md <- tgs_cor(t(legc), as.matrix(mcmd$mean_day), spearman = T)
 
-abs_diff_cor_ct_cor_all <- abs(rowMeans(subset(cor_gene_legc_w_md_in_st, select = -c(Astrocytes, Oligodendrocytes))) - cor_legc_md)
+abs_diff_cor_ct_cor_all <- abs(rowMeans(subset(cor_gene_legc_w_md_in_st, select = -c(Astrocytes, OPCs))) - cor_legc_md)
 abs_diff_cor_ct_cor_all <- setNames(abs_diff_cor_ct_cor_all[,1], rownames(abs_diff_cor_ct_cor_all))
 
 names(cor_gene_legc_w_md_in_st) <- unique(mcmd$cell_type)

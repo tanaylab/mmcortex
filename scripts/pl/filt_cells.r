@@ -1,6 +1,6 @@
 library(metacell)
 
-wd = '/net/mraid14/export/tgdata/users/yonshap/proj/mmcortex'
+wd = '/net/mraid20/export/tgdata/users/yonshap/proj/mmcortex'
 setwd(wd)
 nm = 'pl'
 

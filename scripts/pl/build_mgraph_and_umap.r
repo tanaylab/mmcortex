@@ -3,7 +3,7 @@ library(umap)
 uconf = umap.defaults
 umap_mgraph = F
 
-wd = '/net/mraid14/export/tgdata/users/yonshap/proj/mmcortex'
+wd = '/net/mraid20/export/tgdata/users/yonshap/proj/mmcortex'
 nm = 'pl'
 
 set.seed(1337)

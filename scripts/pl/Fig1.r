@@ -17,30 +17,23 @@ nm = 'pl_cort'
 mc2d_id = 'pl_cort_not_cor_cc'
 
 mc = scdb_mc(nm)
-mat = scdb_mat(nm)
-mct = scdb_mctnetwork(nm)
+# mat = scdb_mat(nm)
 mcf = scdb_mctnetflow(nm)
-mgraph <- scdb_mgraph(nm)
 mc2d <- scdb_mc2d(mc2d_id)
 
-save_pheatmap_png <- function(x, filename, width=2500, height=2500, res = 150) {
-  png(filename, width = width, height = height, res = res)
-  grid::grid.newpage()
-  grid::grid.draw(x$gtable)
-  dev.off()
-}
+source('./scripts/util.r')
 
 mcmd = vroom::vroom('./BonevCollab/mcmd_pl_cort.tsv')
 col_key <- tibble::deframe(unique(mcmd[,c('cell_type', 'color')]))
 color_key = unique(mcmd[,c('cell_type', 'color')])
 
-cust_st_ord = c('Oligodendrocytes','Astrocytes','NSC','IPC_cyc', 'IPC','iCPN/CfuPN', 'iCPN_early','iCPN_late',
+cust_st_ord = c('OPCs','Astrocytes','NSC','IPC_cyc', 'IPC','iCPN/CfuPN', 'iCPN_early','iCPN_late',
                       'CPN_L2-3','CPN_L5_6','iCfuPN','SCPN','CthPN')
 cust_mc_ord_st = unlist(lapply(cust_st_ord, function(s) setNames(which(mcmd$cell_type == s)[order(mcmd$mean_day[which(mcmd$cell_type == s)])], 
                                                                   rep(s, length(which(mcmd$cell_type == s)))
                                                                 )))
 
-cust_st_ord2 = c('Oligodendrocytes','Astrocytes','NSC','IPC_cyc', 'IPC', 'iCPN_early','iCPN_late',
+cust_st_ord2 = c('OPCs','Astrocytes','NSC','IPC_cyc', 'IPC', 'iCPN_early','iCPN_late',
                       'CPN_L2-3','CPN_L5_6','iCPN/CfuPN','iCfuPN','SCPN','CthPN')
 cust_mc_ord_st2 = unlist(lapply(cust_st_ord2, function(s) setNames(which(mcmd$cell_type == s)[order(mcmd$mean_day[which(mcmd$cell_type == s)])], 
                                                                   rep(s, length(which(mcmd$cell_type == s)))
@@ -78,28 +71,53 @@ ann_colors = list('cell_type' = tibble::deframe(unique(mcmd[,c('cell_type', 'col
 legc = log2(1e-05 + mc@e_gc)
 ## End
 
-fig_1a_path <- './output/paper_figs/Fig1/Fig1A.png'
-fig_1a_legend_path <- './output/paper_figs/Fig1/Fig1A_legend.png'
-fig_1b_path <- './output/paper_figs/Fig1/Fig1B.png'
-fig_1c_path <- './output/paper_figs/Fig1/Fig1C.png'
-fig_1c_legend_path <- './output/paper_figs/Fig1/Fig1C_legend.png'
-fig_1d_path <- './output/paper_figs/Fig1/Fig1D.png'
-fig_1d_color_bar_path <- './output/paper_figs/Fig1/Fig1D_color_bar.png'
-fig_1e_path <- './output/paper_figs/Fig1/Fig1E.png'
-fig_1f_path <- './output/paper_figs/Fig1/Fig1F.png'
+device <- 'pdf'
+fig_1a_path <- glue::glue('./output/paper_figs/Fig1/Fig1A.{device}')
+fig_1a_legend_path <- glue::glue('./output/paper_figs/Fig1/Fig1A_legend.{device}')
+fig_1b_path <- glue::glue('./output/paper_figs/Fig1/Fig1B.{device}')
+fig_1c_path <- glue::glue('./output/paper_figs/Fig1/Fig1C.{device}')
+fig_1c_legend_path <- glue::glue('./output/paper_figs/Fig1/Fig1C_legend.{device}')
+fig_1d_path <- glue::glue('./output/paper_figs/Fig1/Fig1D.{device}')
+fig_1d_color_bar_path <- glue::glue('./output/paper_figs/Fig1/Fig1D_color_bar.{device}')
+fig_1e_path <- glue::glue('./output/paper_figs/Fig1/Fig1E.{device}')
+fig_1f_path <- glue::glue('./output/paper_figs/Fig1/Fig1F.{device}')
 
 
 ## Fig 1A
 
 #mc2d
 mc2d_id <- 'pl_cort_not_cor_cc'
-mcell_mc2d_plot(mc2d_id, fig_fn = fig_1a_path, colors = mcmd$color)
+# set_param(param = 'mc_plot_device', value = 'pdf', package = 'metacell')
+# mcell_mc2d_plot(mc2d_id, fig_fn = fig_1a_path, colors = mcmd$color)
+
+min_edge_l <-0
+edge_w <-1
+short_edge_w <-0
+
+mcp_2d_cex <- get_param(param = "mcell_mc2d_cex", package = 'metacell')
+sc_cex <- get_param(param = "sc_cex", package = 'metacell')
+pdf(fig_1a_path, h = 1500/71, w = 1500/71)
+
+mc2d <- scdb_mc2d(mc2d_id)
+plot(mc2d@sc_x, mc2d@sc_y, pch=19, col=mcmd$color[mc@mc[names(mc2d@sc_x)]], cex=sc_cex, bty = 'n', xlab = '', ylab = '', xaxt = 'n', yaxt = 'n')
+fr <- mc2d@graph$mc1
+to <-mc2d@graph$mc2
+dx <-mc2d@mc_x[fr]-mc2d@mc_x[to]
+dy <-mc2d@mc_y[fr]-mc2d@mc_y[to]
+f <-sqrt(dx*dx+dy*dy) > 0
+segments(mc2d@mc_x[fr], mc2d@mc_y[fr], mc2d@mc_x[to], mc2d@mc_y[to], 
+                        lwd=ifelse(f, edge_w, short_edge_w))
+points(mc2d@mc_x, mc2d@mc_y, cex= 3*mcp_2d_cex, col="black", pch=21, bg=mcmd$color)
+text(mc2d@mc_x, mc2d@mc_y, 1:length(mc2d@mc_x), cex=mcp_2d_cex)
+dev.off()
+
 
 #legend
 df = data.frame(color_key[order(match(color_key$cell_type, cust_st_ord), decreasing = F),])
 l = nrow(df)
 scale_y = 1
-png(fig_1a_legend_path, width = 750, height = 2000, res = 250)
+# png(fig_1a_legend_path, width = 750, height = 2000, res = 250)
+pdf(fig_1a_legend_path, width = 750/71, height = 2000/71)
 par(mar = c(4,1,4,0), bty = 'n')
 plot(rep(0.9,l), scale_y*seq(l,1,-1), pch = 16, cex = 5, col = df$color, ylim = c(0,scale_y*l+1),
      xlim = c(-1,60),xlab = '', ylab = '',xaxt = 'n',yaxt = 'n')
@@ -110,14 +128,21 @@ dev.off()
 ## Fig 1B
 # flow monster
 flow_thresh = min(mcf@edge_flows[mcf@edge_flows > 0])
-mctnetwork_plot_net(nm, nm, flow_thresh = flow_thresh,    
-        fn = fig_1b_path,
-         mc_ord=cust_mc_ord_st)
+# mctnetwork_plot_net_YSh(nm, nm, flow_thresh = flow_thresh, plot_pdf = T,  
+#         fn = fig_1b_path,
+#          mc_ord=cust_mc_ord_st)
+
+set_param(param = 'mc_plot_device', value = 'pdf', package = 'metacell')
+# mctnetwork_plot_net_YSh(nm, nm, plot_pdf = TRUE, fn = glue::glue('./output/metacell_flow/figs/{nm}_flow_monster_plot.pdf'), 
+mctnetwork_plot_net_YSh(nm, nm, plot_pdf = TRUE, fn = fig_1b_path, 
+        mc_ord = cust_mc_ord_st, flow_thresh = flow_thresh)
+
 
 
 ## Fig 1C
 # mc2d
 md_clvls <- clrmp[1+round(999*(mcmd$mean_day-13)/(18-13))]
+set_param(param = 'mc_plot_device', value = 'pdf', package = 'metacell')
 mcell_mc2d_plot(mc2d_id = mc2d_id, colors = md_clvls, fig_fn = fig_1c_path)
 
 
@@ -125,21 +150,21 @@ mcell_mc2d_plot(mc2d_id = mc2d_id, colors = md_clvls, fig_fn = fig_1c_path)
 #legend
 # mc2d <- scdb_mc2d('pl_cort_not_cor_cc')
 clrs <- c('red3', 'orange3', 'yellow3', 'green4', 'blue3', 'purple2')
-days <- tail(unique(mat@cell_metadata$day), -1)
-png(fig_1c_legend_path, h = 1500, w = 1500, res = 100)
+days <- paste0('E', 13:18)
+# png(fig_1c_legend_path, h = 1500, w = 1500, res = 100)
+pdf(fig_1c_legend_path, h = 1500/71, w = 1500/71)
 par(cex.main = 6, cex.lab = 2, mar = c(5,5,4,3))
 plot(mc2d@sc_x, mc2d@sc_y, col = 'white', main = 'Cells by day of origin', xaxt = 'n', yaxt  = 'n', bty = 'n', xlab = '', ylab = '')
 legend('topright', legend = days, col = clrs, pch = rep(16, length(clrs)), cex = 5, bty = 'n')
 dev.off()
 
 ## Fig 1D
-source('./scripts/util.r')
 mc_cc = get_mc_cc(mat_id = nm, mc_id = nm, mc2d_id = 'pl_cort_not_cor_cc', nm, mc2d_png_path = fig_1d_path)
 
 shades = colorRampPalette(c("white","lightblue", "blue", "purple"))(100)
 min_val = min(mc_cc$cc_score)
 max_val = max(mc_cc$cc_score)
-plot_color_bar(seq(min_val-1, max_val,l=101), shades, fig_fn = fig_1d_color_bar_path)
+plot_color_bar(seq(min_val-1, max_val,l=101), shades, height = 400/71, width = 400/71, device = pdf, fig_fn = fig_1d_color_bar_path)
 
 ## Fig 1E
 pltmt = mc@mc_fp[goi,cust_mc_ord_st2]
@@ -149,7 +174,6 @@ minv = min(pltmt)
 maxv = max(pltmt)
 l = 100
 pltt = c('blue4', 'white', 'red4', 'black')
-
 
 top_ha <- anno_simple(x = mcmd$cell_type[cust_mc_ord_st2], col = ann_colors[['cell_type']])
 md_col_fun <- circlize::colorRamp2(breaks = 13:18, 
@@ -167,10 +191,10 @@ ch <- Heatmap(pltmt, name = "marker\nheatmap",
                         cluster_columns = F, cluster_rows = F
                         )
 
-png(fig_1e_path, w = 2400, h =1200, res = 200)
+# png(fig_1e_path, w = 2400, h =1200, res = 200)
+pdf(fig_1e_path, w = 1000/71, h = 600/71)
 draw(ch)
 dev.off()
-
 
 ## Fig 1F
 
@@ -180,7 +204,8 @@ aa <- paste0('E', 13:17)
 bb <- paste0('E', 14:18)
 xlabs <- apply(cbind(aa, rep('->', length(aa)), bb), 1, paste, collapse = ' ')
 
-png(fig_1f_path, h = 800, w = 800, res = 100)
+# png(fig_1f_path, h = 800, w = 800, res = 100)
+pdf(fig_1f_path, h = 800/71, w = 800/71)
 par(las = 2, mar = c(12,8,5,5), cex.main = 2, cex.axis = 2, cex.lab = 1.5)
 ct <- 'NSC'
 plot(1:5, nsc_flow_out_n[,ct], col = color_key$color[color_key$cell_type == ct], 

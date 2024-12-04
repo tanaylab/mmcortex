@@ -4,7 +4,7 @@ library(pheatmap)
 devtools::load_all("~/src/mcATAC")
 SEED = 1337
 set.seed(SEED)
-wd = '/net/mraid14/export/tgdata/users/atanay/proj/mmcortex/work0922/'
+wd = '/net/mraid20/export/tgdata/users/atanay/proj/mmcortex/work0922/'
 setwd(wd)
 scdb_init(base_dir = './scdb', force_reinit = T)
 scfigs_init('./figs')
@@ -27,6 +27,6 @@ head(multi_model$atac_intervs)
 #those in clusters annotated as variable
 feat_peak = multi_model$atac_intervs[acn$f_var_peak,]
 
-scc <- scc_read("/net/mraid14/export/tgdata/users/yonshap/proj/mmcortex/data/frag_reads/")
+scc <- scc_read("/net/mraid20/export/tgdata/users/yonshap/proj/mmcortex/data/frag_reads/")
 
 scmat <- scc_extract(scc =scc, intervals = feat_peak)

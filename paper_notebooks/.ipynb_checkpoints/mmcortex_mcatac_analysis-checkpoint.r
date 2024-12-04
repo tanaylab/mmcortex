@@ -21,12 +21,12 @@ mcmd <- mcmd[-c(602:603),]
 options(gmax.data.size = 1e+9)
 options(future.globals.maxSize = 8000 * 1024^2)
 
-cust_st_ord <- c('Oligodendrocytes','Astrocytes','NSC','IPC_cyc', 'IPC', 'iCPN_early','iCPN_late',
+cust_st_ord <- c('OPCs','Astrocytes','NSC','IPC_cyc', 'IPC', 'iCPN_early','iCPN_late',
                       'CPN_L2-3','CPN_L5_6','iCPN/CfuPN','iCfuPN','SCPN','CthPN')
 cust_mc_ord_st <- unlist(lapply(cust_st_ord, function(st) setNames(as.character(mcmd$metacell[which(mcmd$cell_type == st)[order(mcmd$mean_day[which(mcmd$cell_type == st)])]]), 
                                                                   rep(st, length(which(mcmd$cell_type == st))))))
 
-cust_st_ord2 <- c('Oligodendrocytes','Astrocytes','NSC','IPC_cyc', 'IPC', 'iCPN/CfuPN','iCPN_early','iCPN_late',
+cust_st_ord2 <- c('OPCs','Astrocytes','NSC','IPC_cyc', 'IPC', 'iCPN/CfuPN','iCPN_early','iCPN_late',
                       'CPN_L2-3','CPN_L5_6','iCfuPN','SCPN','CthPN')
 cust_mc_ord_st2 <- unlist(lapply(cust_st_ord2, function(st) setNames(as.character(mcmd$metacell[which(mcmd$cell_type == st)[order(mcmd$mean_day[which(mcmd$cell_type == st)])]]), 
                                                                   rep(st, length(which(mcmd$cell_type == st))))))
@@ -113,7 +113,7 @@ ipc_mcs <- mcmd$metacell[mcmd$cell_type %in%  c('IPC', 'IPC_cyc')]
 # flow_res_results <- readr::read_tsv(flow_res_path)
 # frr_mat <- as.matrix(dplyr::select(flow_res_results, -rowname))
 # rownames(frr_mat) <- flow_res_results$rowname
-# glia_ct <- c('Astrocytes', 'Oligodendrocytes')
+# glia_ct <- c('Astrocytes', 'OPCs')
 # mc_glia <- which(mcmd$cell_type %in% glia_ct)
 # nnz_frcs <- apply(frr_mat[c('16_16', '16_20'),], 1, function(x) {sum_glia <- sum(x[mc_glia]); x[mc_glia] <- 0; nnz_mc <- which(x > 0); x_nnz_frc <- x[nnz_mc]/sum(x[nnz_mc]); return(setNames(x_nnz_frc, nnz_mc))})
 # nnz_cumsum <- lapply(nnz_frcs, function(x) cumsum(sort(x)))
@@ -365,8 +365,8 @@ p_motifs_lfc_mtt <- pheatmap::pheatmap(round(ra_98_lfc_int[enh_cl_ord,mtt], 3), 
 save_pheatmap(p_motifs_lfc_mtt, file.path(wd, 'output/mcatac/figs/test/motifs_annot_mat_mtt.png'), h = 1800, w = 850)
 
 # New version - 25/04/24
-inds_glia <- which(names(cust_mc_ord_st2) %in% c('Oligodendrocytes', 'Astrocytes'))
-inds_no_glia <- which(!(names(cust_mc_ord_st2) %in% c('Oligodendrocytes', 'Astrocytes')))
+inds_glia <- which(names(cust_mc_ord_st2) %in% c('OPCs', 'Astrocytes'))
+inds_no_glia <- which(!(names(cust_mc_ord_st2) %in% c('OPCs', 'Astrocytes')))
 
 
 pltmt <- a_legc_avg_cl_enh[enh_cl_ord, cust_mc_ord_st2]
@@ -451,7 +451,7 @@ col_ha1_glia <- HeatmapAnnotation(cell_type = anno_simple(col_annot[cust_mc_ord_
 ch_glia <- ComplexHeatmap::Heatmap(matrix = pltmt[,inds_glia], 
                                 # col = colorRampPalette(c('white', 'orange', 'red', 'purple', 'black'))(100),
                               col = circlize::colorRamp2(breaks =  seq(-16.6,-14,l=5), colors = c('white', 'orange', 'red', 'purple', 'black')),
-                                   column_split = factor(names(cust_mc_ord_st2[inds_glia]), levels = c('Oligodendrocytes', 'Astrocytes')), column_gap = unit(3, 'mm'),
+                                   column_split = factor(names(cust_mc_ord_st2[inds_glia]), levels = c('OPCs', 'Astrocytes')), column_gap = unit(3, 'mm'),
                               column_title_gp = gpar(fontsize = 20),
                               column_title_rot = 90,
                               row_split = factor(ifelse(rownames(pltmt) %in% rownames(m1), 1, 2), levels = c(1,2)), row_gap = unit(2, 'mm'),

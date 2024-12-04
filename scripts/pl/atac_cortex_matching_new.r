@@ -6,12 +6,12 @@ gset_genome('mm10')
 SEED <- 1337
 K <- 30
 set.seed(SEED)
-wd = '/net/mraid14/export/tgdata/users/yonshap/proj/mmcortex/'
+wd = '/net/mraid20/export/tgdata/users/yonshap/proj/mmcortex/'
 setwd(wd)
 scdb_init(base_dir = './scdb', force_reinit = T)
 
 mcmd = vroom::vroom('./BonevCollab/mcmd_pl_cort.tsv')
-cust_st_ord = c('Oligodendrocytes','Astrocytes','NSC','IPC_cyc', 'IPC', 'iCPN_early','iCPN_late',
+cust_st_ord = c('OPCs','Astrocytes','NSC','IPC_cyc', 'IPC', 'iCPN_early','iCPN_late',
                       'CPN_L2-3','CPN_L5_6','iCPN/CfuPN','iCfuPN','SCPN','CthPN')
 cust_mc_ord_st = unlist(lapply(cust_st_ord, function(s) setNames(which(mcmd$cell_type == s), 
                                                                   rep(s, length(which(mcmd$cell_type == s))))))                         
@@ -40,7 +40,7 @@ cs <- Matrix::colSums(mat_feat@mat)
 csp <- Matrix::colSums(mat_prom@mat)
 mat_ds <- scm_downsamp(mat_feat@mat, quantile(cs, 0.1))
 mat_ds_prom <- scm_downsamp(mat_prom@mat, min(csp))
-bad_ct <- c('Oligodendrocytes','Astrocytes','NSC', 'IPC', 'IPC_cyc')
+bad_ct <- c('OPCs','Astrocytes','NSC', 'IPC', 'IPC_cyc')
 ### 13:18 are days of samples
 sc_res <- lapply(13:18, function(d) {
     cells_day <- colnames(mat_ds)[colnames(mat_ds) %in% rownames(mat_feat@cell_metadata)[mat_feat@cell_metadata$day == d]]
@@ -87,7 +87,7 @@ a_legc <- log2(1e-5 + t(t(mcl_all/colSums(mcl_all))))
 colnames(a_legc) <- colnames(mcl_all) 
 km_a_legc <- tglkmeans::TGL_kmeans(as.matrix(a_legc), k = 80)
 
-load("/net/mraid14/export/tgdata/users/atanay/proj/mmcortex/work0922/data/atac_clsts_mmcortex.Rda",v=T)
+load("/net/mraid20/export/tgdata/users/atanay/proj/mmcortex/work0922/data/atac_clsts_mmcortex.Rda",v=T)
 old_clust_vec <- atac_clsts$km$cluster[atac_clsts$km$cluster %in% atac_clsts$vclst_nms]
 
 seq_coords <- misha.ext::convert_10x_peak_names_to_misha_intervals(rownames(a_legc))
@@ -268,7 +268,7 @@ annotation_col = data.frame(cell_type = mcmd$cell_type)
 rownames(annotation_col) = mcmd$metacell
 ann_colors = list(cell_type = setNames(color_key$color, color_key$cell_type))
 
-cust_st_ord = c('Oligodendrocytes','Astrocytes','NSC','IPC_cyc', 'IPC', 'iCPN_early','iCPN_late',
+cust_st_ord = c('OPCs','Astrocytes','NSC','IPC_cyc', 'IPC', 'iCPN_early','iCPN_late',
                       'CPN_L2-3','CPN_L5_6','iCPN/CfuPN','iCfuPN','SCPN','CthPN')
 cust_mc_ord_st = unlist(lapply(cust_st_ord, function(st) setNames(sort(mcmd$metacell[mcmd$cell_type == st]), 
                                                                   rep(st, length(which(mcmd$cell_type == st))))))

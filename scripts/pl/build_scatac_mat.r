@@ -5,21 +5,21 @@ devtools::load_all("~/src/mcATAC/")
 gset_genome('mm10')
 SEED = 1337
 set.seed(SEED)
-wd = '/net/mraid14/export/tgdata/users/yonshap/proj/mmcortex/'
+wd = '/net/mraid20/export/tgdata/users/yonshap/proj/mmcortex/'
 setwd(wd)
 scdb_init(base_dir = './scdb', force_reinit = T)
 nm <- "pl_cort_feat_peaks"
 
 mcmd = vroom::vroom('./BonevCollab/mcmd_pl_cort.tsv')
-cust_st_ord = c('Oligodendrocytes','Astrocytes','NSC','IPC_cyc', 'IPC', 'iCPN_early','iCPN_late',
+cust_st_ord = c('OPCs','Astrocytes','NSC','IPC_cyc', 'IPC', 'iCPN_early','iCPN_late',
                       'CPN_L2-3','CPN_L5_6','iCPN/CfuPN','iCfuPN','SCPN','CthPN')
 cust_mc_ord_st = unlist(lapply(cust_st_ord, function(s) setNames(which(mcmd$cell_type == s), 
                                                                   rep(s, length(which(mcmd$cell_type == s))))))                         
 
 
-load("/net/mraid14/export/tgdata/users/atanay/proj/mmcortex/work0922/data/multi_mmcortex.Rda",v=T)
-# load("/net/mraid14/export/tgdata/users/atanay/proj/mmcortex/work0922/data/atac_clsts_mmcortex.Rda",v=T)
-# load("/net/mraid14/export/tgdata/users/atanay/proj/mmcortex/work0922/data/atac_clsts_annot_mmcortex.Rda",v=T)
+load("/net/mraid20/export/tgdata/users/atanay/proj/mmcortex/work0922/data/multi_mmcortex.Rda",v=T)
+# load("/net/mraid20/export/tgdata/users/atanay/proj/mmcortex/work0922/data/atac_clsts_mmcortex.Rda",v=T)
+# load("/net/mraid20/export/tgdata/users/atanay/proj/mmcortex/work0922/data/atac_clsts_annot_mmcortex.Rda",v=T)
 
 #all intervals
 head(multi_model$atac_intervs)
@@ -40,7 +40,7 @@ write_sc_counts_from_fragments(fragments_file = './scatac_data/fragments_filtere
             cell_names = promo_peaks@Dimnames[[2]][!(batch_ids %in% 1:2)], 
             genome = "mm10")
 
-scc <- scc_read('/net/mraid14/export/tgdata/users/yonshap/proj/mmcortex/data/frag_reads_28122022/')
+scc <- scc_read('/net/mraid20/export/tgdata/users/yonshap/proj/mmcortex/data/frag_reads_28122022/')
 
 scmat <- scc_extract(scc = scc, intervals = feat_peak)
 

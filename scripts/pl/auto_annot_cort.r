@@ -48,10 +48,10 @@ cfupn = c('CthPN', 'SCPN')
 ### Import marker gene set ###
 mg_bon = unique(data.frame(cbind(purrr::map(mg_bon, 1), purrr::map(mg_bon, 2))))
 colnames(mg_bon) = c('st', 'marks')
-mg_bon = mg_bon[mg_bon$st %in% c('NSC', 'IPC', 'CthPN', 'SCPN', 'CPN_L2-3', 'Stellate_L4', 'CPN_L5_6', 'Oligodendrocytes', 'Astrocytes'),]
+mg_bon = mg_bon[mg_bon$st %in% c('NSC', 'IPC', 'CthPN', 'SCPN', 'CPN_L2-3', 'Stellate_L4', 'CPN_L5_6', 'OPCs', 'Astrocytes'),]
 
 mg_bon$marks[mg_bon$st == 'Astrocytes'] = list(unlist(c(mg_bon$marks[mg_bon$st == 'Astrocytes'])))
-mg_bon$marks[mg_bon$st == 'Oligodendrocytes'] = list(unlist(c(mg_bon$marks[mg_bon$st == 'Oligodendrocytes'])))
+mg_bon$marks[mg_bon$st == 'OPCs'] = list(unlist(c(mg_bon$marks[mg_bon$st == 'OPCs'])))
 mg_bon$marks[mg_bon$st == 'SCPN'] = list(unlist(c(mg_bon$marks[mg_bon$st == 'SCPN'])))
 mg_bon$marks[mg_bon$st == 'CthPN'] = list(unlist(c(mg_bon$marks[mg_bon$st == 'CthPN'], 'Foxp2', 'Hs3st4', 'Prickle1')))
 mg_bon$marks[mg_bon$st == 'CPN_L2-3'] = list(unlist(c(mg_bon$marks[mg_bon$st == 'CPN_L2-3'], c('Eif1b', 'Gpm6a'))))
@@ -114,7 +114,7 @@ cond2 = cat_mark_mc$mat_imm_rat > 2 &
                     legc['Mapt',] >= -10.5 
                     ## filter for mature mcs
 cond3 = colnames(st_mark_mc)[apply(st_mark_mc, 1, which.max)] %in% 
-                c('NSC', 'IPC', 'Astrocytes', 'Oligodendrocytes')       ## Check neural or glial
+                c('NSC', 'IPC', 'Astrocytes', 'OPCs')       ## Check neural or glial
 cond7 = cat_mark_mc$cpn_cfu_rat >= log2(2)                              ## filter for CPN-tending
 cond8 = cat_mark_mc$cpn_cfu_rat <= -log2(2)                             ## filter for CfuPN-tending
 cond9 = colnames(st_mark_mc)[apply(st_mark_mc, 1, which.max)] == 'NSC'
@@ -225,16 +225,16 @@ color_key = color_key %>% mutate(i = 1:nrow(color_key))
 colnames(color_key) = c('cell_type', 'color', 'i', 'ord')
 types_df = data.frame(cbind(1:length(st), st))
 colnames(types_df) = c('metacell', 'cell_type')
-readr::write_tsv(color_key, '/net/mraid14/export/tgdata/users/aviezerl/proj/mmcortex/cell_type_annot_YS.tsv')
+readr::write_tsv(color_key, '/net/mraid20/export/tgdata/users/aviezerl/proj/mmcortex/cell_type_annot_YS.tsv')
 types_df = data.frame(cbind(1:length(st), st))
 colnames(types_df) = c('metacell', 'cell_type')
 types_df$mc_age <- 12+apply(day_mat, 1, function(x) sum(x*(1:ncol(day_mat)))/sum(x))
-readr::write_csv(types_df, '/net/mraid14/export/tgdata/users/aviezerl/proj/mmcortex/metacell_types.csv')
+readr::write_csv(types_df, '/net/mraid20/export/tgdata/users/aviezerl/proj/mmcortex/metacell_types.csv')
 
 mc@colors = color_key$color[match(st, color_key[,'cell_type'])]
 scdb_add_mc(nm_test, mc)
 
-cust_st_ord = c('Oligodendrocytes','Astrocytes','NSC','IPC_cyc','IPC','iCPN_early','iCPN_late',
+cust_st_ord = c('OPCs','Astrocytes','NSC','IPC_cyc','IPC','iCPN_early','iCPN_late',
                       'CPN_L2-3','CPN_L5_6','iCPN/CfuPN','iCfuPN','SCPN','CthPN')
 cust_mc_ord_st_new = unlist(lapply(cust_st_ord, function(s) setNames(which(st == s), 
                                                                   rep(s, length(which(st == s))))))

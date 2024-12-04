@@ -2,7 +2,7 @@ library(metacell)
 library(lpsymphony)
 SEED = 1337
 set.seed(SEED)
-wd = '/net/mraid14/export/tgdata/users/yonshap/proj/mmcortex/'
+wd = '/net/mraid20/export/tgdata/users/yonshap/proj/mmcortex/'
 setwd(wd)
 scdb_init(base_dir = './scdb', force_reinit = T)
 scfigs_init('./figs')
@@ -132,7 +132,7 @@ save_pheatmap_png <- function(x, filename, width=2500, height=2500, res = 150) {
   dev.off()
 }
 
-cust_st_ord = c('Oligodendrocytes','Astrocytes','NSC','IPC_cyc','IPC','iCPN','iCPN_L2-3','CPN_L2-3','Stellate_L4',
+cust_st_ord = c('OPCs','Astrocytes','NSC','IPC_cyc','IPC','iCPN','iCPN_L2-3','CPN_L2-3','Stellate_L4',
                 'CPN_L5_6','iCPN_L5_6','iCPN/CfuPN','iCfuPN','CthPN','SCPN')
 cust_mc_ord_st = unlist(lapply(cust_st_ord, function(st) setNames(sort(mcmd$mc[mcmd$st == st]), 
                                                                   rep(st, length(which(mcmd$st == st))))))

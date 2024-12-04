@@ -1,6 +1,6 @@
 devtools::load_all("~/src/mcATAC/")
 library(pheatmap)
-setwd('/net/mraid14/export/tgdata/users/yonshap/proj/mmcortex')
+setwd('/net/mraid20/export/tgdata/users/yonshap/proj/mmcortex')
 my_genome <- "mm10"
 gset_genome(my_genome)
 options(gmax.data.size = 1e+9)

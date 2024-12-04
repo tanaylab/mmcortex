@@ -3,7 +3,7 @@ library(lpsymphony)
 library(sparseMatrixStats)
 SEED = 1337
 set.seed(SEED)
-wd = '/net/mraid14/export/tgdata/users/yonshap/proj/mmcortex/'
+wd = '/net/mraid20/export/tgdata/users/yonshap/proj/mmcortex/'
 setwd(wd)
 scdb_init(base_dir = './scdb', force_reinit = T)
 scfigs_init('./figs')
@@ -16,7 +16,7 @@ prom = scdb_mat('pl_prom_cort')
 peak = scdb_mat('pl_ig_cort')
 
 mcmd = vroom::vroom('./BonevCollab/mcmd_pl_cort.tsv')
-cust_st_ord = c('Oligodendrocytes','Astrocytes','NSC','IPC_cyc', 'IPC','IPC_late','iCPN/CfuPN',
+cust_st_ord = c('OPCs','Astrocytes','NSC','IPC_cyc', 'IPC','IPC_late','iCPN/CfuPN',
                 'iCPN_early','iCPN_late','CPN_L2-3','CPN_L5_6','iCfuPN','SCPN','CthPN')
 cust_mc_ord_st = unlist(lapply(cust_st_ord, function(st) setNames(sort(mcmd$mc[mcmd$st == st]), 
                                                                   rep(st, length(which(mcmd$st == st))))))

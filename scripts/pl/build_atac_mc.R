@@ -1,6 +1,6 @@
 SEED = 1337
 set.seed(SEED)
-wd = '/net/mraid14/export/tgdata/users/yonshap/proj/mmcortex/'
+wd = '/net/mraid20/export/tgdata/users/yonshap/proj/mmcortex/'
 setwd(wd)
 mcmd <- readr::read_tsv('./BonevCollab/mcmd_pl_cort.tsv')
 library(metacell)
@@ -44,7 +44,7 @@ flow_res_path <- file.path(wd, "output/mcatac/pl_cort_flow_mat.tsv")
 flow_res_results <- readr::read_tsv(flow_res_path)
 frr_mat <- as.matrix(dplyr::select(flow_res_results, -rowname))
 rownames(frr_mat) <- flow_res_results$rowname
-glia_ct <- c('Astrocytes', 'Oligodendrocytes')
+glia_ct <- c('Astrocytes', 'OPCs')
 mc_glia <- which(mcmd$cell_type %in% glia_ct)
 nnz_frcs <- apply(frr_mat[c('16_16', '16_20'),], 1, function(x) {sum_glia <- sum(x[mc_glia]); x[mc_glia] <- 0; nnz_mc <- which(x > 0); x_nnz_frc <- x[nnz_mc]/sum(x[nnz_mc]); return(setNames(x_nnz_frc, nnz_mc))})
 nnz_cumsum <- lapply(nnz_frcs, function(x) cumsum(sort(x)))

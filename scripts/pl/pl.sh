@@ -14,4 +14,4 @@ cd ~/raid/proj/mmcortex
 # Rscript scripts/pl/atac_init.r
 # Rscript scripts/pl/atac_filt_non_cort.r
 # Rscript scripts/pl/atac_cortex_matching.r
-Rscript scripts/pl/atac_enh_flow.r
+# Rscript scripts/pl/atac_enh_flow.r

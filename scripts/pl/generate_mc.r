@@ -2,7 +2,7 @@ library(metacell)
 library(glue)
 library(tidyverse)
 
-wd = '/net/mraid14/export/tgdata/users/yonshap/proj/mmcortex'
+wd = '/net/mraid20/export/tgdata/users/yonshap/proj/mmcortex'
 nm = 'all'
 set.seed(1337)
 

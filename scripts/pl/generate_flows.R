@@ -126,7 +126,7 @@ scdb_add_mctnetflow(flow_id, mcf)
 
 mcmd = readr::read_tsv('~/raid/proj/mmcortex/BonevCollab/mcmd_pl_cort.tsv')
 # color_key = unique(mcmd[,c('cell_type', 'color')])
-cust_st_ord = c('Oligodendrocytes','Astrocytes','NSC','IPC_cyc', 'IPC','iCPN_early','iCPN_late',
+cust_st_ord = c('OPCsC_cyc', 'IPC','iCPN_early','iCPN_late',
                       'CPN_L2-3','CPN_L5_6','iCPN/CfuPN','iCfuPN','SCPN','CthPN')
 # mcmd = readr::read_tsv('./BonevCollab/mcmd_pl_cort_freeze_1_9_22.tsv')
 cust_st_ord_mc = unlist(lapply(cust_st_ord, function(u) 

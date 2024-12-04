@@ -1,5 +1,5 @@
 library(metacell)
-wd = '/net/mraid14/export/tgdata/users/yonshap/proj/mmcortex'
+wd = '/net/mraid20/export/tgdata/users/yonshap/proj/mmcortex'
 SEED = 1337
 scdb_init(file.path(wd, 'scdb'), force_reinit = T)
 scfigs_init(file.path(wd, 'figs'))
