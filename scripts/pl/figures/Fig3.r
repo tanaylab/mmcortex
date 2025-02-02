@@ -55,9 +55,9 @@ mc_rna <- scdb_mc('pl_cort')
 
 dir.create(file.path(wd, 'output/paper_figs/Fig3/'))
 device <- 'pdf'
-fig_3a1_path <- glue::glue(file.path(wd, 'output/paper_figs/Fig3/Fig3A1.{device}'))
-fig_3a2_path <- glue::glue(file.path(wd, 'output/paper_figs/Fig3/Fig3A2.{device}'))
-fig_3b_path <- glue::glue(file.path(wd, 'output/paper_figs/Fig3/Fig3B.{device}'))
+fig_3a_path <- glue::glue(file.path(wd, 'output/paper_figs/Fig3/Fig3A.{device}'))
+fig_3b1_path <- glue::glue(file.path(wd, 'output/paper_figs/Fig3/Fig3B1.{device}'))
+fig_3b2_path <- glue::glue(file.path(wd, 'output/paper_figs/Fig3/Fig3B2.{device}'))
 fig_3cdef_path <- glue::glue(file.path(wd, 'output/paper_figs/Fig3/Fig3CDEF.{device}'))
 fig_cfupn_traj <- glue::glue(file.path(wd, 'output/paper_figs/Fig3/cfupn_traj.{device}'))
 fig_cpn_traj <- glue::glue(file.path(wd, 'output/paper_figs/Fig3/cpn_traj.{device}'))
@@ -65,13 +65,62 @@ fig_cpn_traj <- glue::glue(file.path(wd, 'output/paper_figs/Fig3/cpn_traj.{devic
 load(file.path(wd, 'output/mcatac/fig3_data.rda'))
 load(file.path(wd, 'output/metacell_model/diff_order_data.rda'))
 
-# tss <- gintervals.load('intervs.global.tss')
-tss <- tss[tss$geneSymbol %in% rownames(mc_rna@e_gc),]
-tss2 <- tss[!duplicated(tss$geneSymbol),]
-# tads <- gintervals.load('intervs.global.tad_names')
-nsc_mcs <- mcmd$metacell[mcmd$cell_type == 'NSC']
-ipc_mcs <- mcmd$metacell[mcmd$cell_type %in%  c('IPC', 'IPC_cyc')]
 
+
+
+
+
+## Fig 3A
+
+pltmt2 <- a_legc_avg_cl_prom[,cust_mc_ord_st2]
+
+col_ha1 <- HeatmapAnnotation(cell_type = anno_simple(col_annot$cell_type[match(cust_mc_ord_st2, mcmd$metacell)], 
+                                                     col = ann_colors[['cell_type']],
+                                                     height =unit(1, 'cm')), 
+                             mean_day = anno_lines(x = col_annot$mean_day[match(cust_mc_ord_st2, mcmd$metacell)], 
+                                                    axis_param = list(gp = gpar(fontsize = 16)),
+                                                    height =unit(1, 'cm')), 
+                             annotation_name_gp = gpar(fontsize = 18),
+                             show_legend = F)
+
+row_ha <- HeatmapAnnotation(cluster_size = anno_barplot(as.numeric(km_prom_a_legc$size), ylim = c(800,3000), 
+                                                        gp = gpar(fill = 'black',fontsize = 18), 
+                                                        axis_param = list(facing = 'inside', 
+                                                        gp = gpar(fontsize = 20), 
+                                                        labels_rot = -90)), 
+                            annotation_name_gp = gpar(fontsize = 18),
+                            annotation_name_rot = 0,
+                            annotation_name_offset = unit(3, 'cm'),        
+                            which = 'row',
+                            width = unit(5, 'cm')
+                           )
+
+
+ch2 <- ComplexHeatmap::Heatmap(matrix = pltmt2[,] - rowMeans(pltmt2[,]), name = 'log2\nfraction\nATAC\nminus\nmean', 
+                              # col = circlize::colorRamp2(breaks =  seq(-16.6,-14,l=5), colors = c('white', 'orange', 'red', 'purple', 'black')),
+                              col = circlize::colorRamp2(breaks =  seq(-2,2,l=3), 
+                                colors = c('blue3', 'white', 'red3')),
+                              column_split = factor(names(cust_mc_ord_st2), levels = cust_st_ord2), column_gap = unit(2, 'mm'),
+                              column_title_gp = gpar(fontsize = 0),
+                              top_annotation = col_ha1, 
+                              show_heatmap_legend = T,
+                              show_column_names = F,
+                              show_row_dend = FALSE,
+                              column_title_rot = 90,
+                              heatmap_legend_param = list(legend_height = unit(5, 'in'), 
+                              legend_width = unit(5, 'in'), 
+                              labels_gp = gpar(fontsize = 16)),
+                              heatmap_width = unit(45, 'cm'), 
+                              heatmap_height = unit(8, 'cm'),
+                              left_annotation = row_ha,
+                              row_names_gp = gpar(fontsize = 16),
+                              cluster_columns = F, cluster_rows = T,
+                              clustering_method_rows = 'ward.D2')
+
+
+pdf(fig_3a_path, w = 1500/71, h = 400/71)
+draw(ch2)
+dev.off()
 
 
 # New version - 25/04/24
@@ -135,7 +184,7 @@ motif_ha <- rowAnnotation(`motif\nenrichment` = motifs_anno_mat[,hc_mtt$order], 
 
 
 
-ch <- ComplexHeatmap::Heatmap(matrix = pltmt[,inds_no_glia] - rowMeans(pltmt[,inds_no_glia]), 
+ch <- ComplexHeatmap::Heatmap(matrix = pltmt[,inds_no_glia] - rowMeans(pltmt), 
                               name = 'log2\nfraction\nATAC\nminus\nmean',
                               # col = circlize::colorRamp2(breaks =  seq(-16.6,-14,l=5), 
                               #   colors = c('white', 'orange', 'red', 'purple', 'black')),
@@ -171,7 +220,7 @@ col_ha1_glia <- HeatmapAnnotation(cell_type = anno_simple(col_annot[cust_mc_ord_
                              show_legend = F)
 
 
-ch_glia <- ComplexHeatmap::Heatmap(matrix = pltmt[,inds_glia] - rowMeans(pltmt[,inds_glia]), 
+ch_glia <- ComplexHeatmap::Heatmap(matrix = pltmt[,inds_glia] - rowMeans(pltmt), 
                               # col = circlize::colorRamp2(breaks =  seq(-16.6,-14,l=5), colors = c('white', 'orange', 'red', 'purple', 'black')),
                               col = circlize::colorRamp2(breaks =  seq(-2,2,l=3), colors = c('blue3', 'white', 'red3')),
                               column_split = factor(names(cust_mc_ord_st2[inds_glia]), levels = c('OPCs', 'Astrocytes')), column_gap = unit(3, 'mm'),
@@ -191,63 +240,12 @@ ch_glia <- ComplexHeatmap::Heatmap(matrix = pltmt[,inds_glia] - rowMeans(pltmt[,
                         cluster_columns = F, cluster_rows = F)
 
 
-pdf(fig_3a1_path, w = 1480/.75e+2, h =1170/.71e+2)
+pdf(fig_3b2_path, w = 1480/.75e+2, h =1170/.71e+2)
 draw(ch)
 dev.off()
 
-pdf(fig_3a2_path, w = 320/.71e+2, h =1270/.71e+2)
+pdf(fig_3b1_path, w = 320/.71e+2, h =1270/.71e+2)
 draw(ch_glia)
-dev.off()
-
-
-## Fig 3B
-
-pltmt2 <- a_legc_avg_cl_prom[,cust_mc_ord_st2]
-
-col_ha1 <- HeatmapAnnotation(cell_type = anno_simple(col_annot$cell_type[match(cust_mc_ord_st2, mcmd$metacell)], 
-                                                     col = ann_colors[['cell_type']],
-                                                     height =unit(1, 'cm')), 
-                             mean_day = anno_lines(x = col_annot$mean_day[match(cust_mc_ord_st2, mcmd$metacell)], 
-                                                    axis_param = list(gp = gpar(fontsize = 16)),
-                                                    height =unit(1, 'cm')), 
-                             annotation_name_gp = gpar(fontsize = 18),
-                             show_legend = F)
-
-row_ha <- HeatmapAnnotation(cluster_size = anno_barplot(as.numeric(km_prom_a_legc$size), ylim = c(800,3000), 
-                                                        gp = gpar(fill = 'black',fontsize = 18), 
-                                                        axis_param = list(facing = 'inside', 
-                                                        gp = gpar(fontsize = 20), 
-                                                        labels_rot = -90)), 
-                            annotation_name_gp = gpar(fontsize = 18),
-                            annotation_name_rot = 0,
-                            annotation_name_offset = unit(3, 'cm'),        
-                            which = 'row',
-                            width = unit(5, 'cm')
-                           )
-
-
-ch2 <- ComplexHeatmap::Heatmap(matrix = pltmt2[,] - rowMeans(pltmt2[,]), name = 'log2\nfraction\nATAC\nminus\nmean', 
-                              col = circlize::colorRamp2(breaks =  seq(-16.6,-14,l=5), colors = c('white', 'orange', 'red', 'purple', 'black')),
-                              column_split = factor(names(cust_mc_ord_st2), levels = cust_st_ord2), column_gap = unit(2, 'mm'),
-                              column_title_gp = gpar(fontsize = 0),
-                              top_annotation = col_ha1, 
-                              show_heatmap_legend = T,
-                              show_column_names = F,
-                              show_row_dend = FALSE,
-                              column_title_rot = 90,
-                              heatmap_legend_param = list(legend_height = unit(5, 'in'), 
-                              legend_width = unit(5, 'in'), 
-                              labels_gp = gpar(fontsize = 16)),
-                              heatmap_width = unit(45, 'cm'), 
-                              heatmap_height = unit(8, 'cm'),
-                              left_annotation = row_ha,
-                              row_names_gp = gpar(fontsize = 16),
-                              cluster_columns = F, cluster_rows = T,
-                              clustering_method_rows = 'ward.D2')
-
-
-pdf(fig_3b_path, w = 1450/71, h = 350/71)
-draw(ch2)
 dev.off()
 
 

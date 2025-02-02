@@ -82,6 +82,7 @@ fig_s2h_path <- glue::glue('./output/paper_figs/FigS2/FigS2H.{device}')
 fig_s2i_path <- glue::glue('./output/paper_figs/FigS2/FigS2I.{device}')
 fig_s2j_path <- glue::glue('./output/paper_figs/FigS2/FigS2J.{device}')
 fig_s2k_path <- glue::glue('./output/paper_figs/FigS2/FigS2K.{device}')
+# fig_s2l_path <- glue::glue('./output/paper_figs/FigS2/FigS2L.{device}')
 
 
 astro_module <- readLines('./output/metacell_model/nsc_gene_modules/astro_module.txt')
@@ -95,67 +96,132 @@ load('./output/metacell_model/nsc_gene_modules/phase_info.rda')
 print('plotting S2A')
 st_legc <- as.data.frame(t(tgs_matrix_tapply(legc, mcmd$cell_type, mean)))
 
+
+cluster_names <- setNames(gsub(' ', '\n', c('Cell cycle 1', 
+                            'Temp. decreasing 1', 
+                            'Cell cycle 2',
+                            'Temp. increasing 1',
+                            'Temp. increasing 2',
+                            'Cell cycle 3',
+                            'Cell cycle 4',
+                            'Temp. decreasing 2')), sort(unique(ct_hc_cor_nsc)))
+
+
 pdf(fig_s2a_path, h = 500/71, w = 1000/71)
-par(mfrow = c(2,4))
-vvv <- lapply(sort(unique(ct_hc_cor_nsc)), function(clj) {
+# par(mfrow = c(2,4))
+
+EXPAND_FACTOR <- 3
+RATIO <- 1.3
+layout_mat = matrix(c(rep(1:4, EXPAND_FACTOR), rep(5:8, round(EXPAND_FACTOR*RATIO))),
+                nrow = EXPAND_FACTOR + round(EXPAND_FACTOR*RATIO),
+                ncol = 4, 
+                byrow = T)
+layout(layout_mat)
+mari <- c(9,6,3,0.5)
+par(las = 2, cex.main = 2, cex.lab = 2, cex.axis = 1.52, mar = mari)
+# vvv <- lapply(sort(unique(ct_hc_cor_nsc)), function(clj) {
+vvv <- lapply(sort(cluster_names), function(cnj) {
+    clj <- as.numeric(names(cluster_names)[cluster_names == cnj])
     gnj <- names(ct_hc_cor_nsc)[ct_hc_cor_nsc == clj]
-    par(las = 2, cex.main = 2, cex.lab = 3,cex.axis = 2,mar = c(14,4,4,0.5))
-    boxplot(st_legc[gnj,cust_st_ord2], col = col_key[cust_st_ord2], main = paste('Cluster', clj), 
+    if (grepl('cell', cnj, ign = T)) {
+        xaxti <- 'n'
+        mari[[1]] <- 0.5
+    } else {
+        xaxti <- 's'
+        mari[[1]] <- 10
+    }
+    par(mar = mari)
+    boxplot(st_legc[gnj,cust_st_ord2], col = col_key[cust_st_ord2], 
+            main = gsub('\n', ' ', cluster_names[[clj]]), 
+            ylab = '',
+            xaxt = xaxti,
+            # main = paste('Cluster', clj), 
             ylim = quantile(unlist(st_legc[gnj,cust_st_ord2]), c(0.1,0.96)))
+    title(ylab = 'Mean RNA', line = 4)
 })
 dev.off()
+
+
 print('done S2A')
 
 
 ## Fig S2B
 print('plotting S2B')
 
-ra <- as.data.frame(tibble::column_to_rownames(tibble::enframe(ct_hc_cor_nsc, name = 'gene', value = 'cluster'), 'gene'))
+ct_hc_cor_nsc_h <- setNames(cluster_names[ct_hc_cor_nsc], names(ct_hc_cor_nsc))
+
+ca <- columnAnnotation(df = tibble::column_to_rownames(tibble::enframe(ct_hc_cor_nsc_h[hc_cor_nsc$order], name = 'gene', value = 'cluster'), 'gene'), 
+                       show_legend = c('cluster' = F),
+                       col =  list(cluster = setNames(chameleon::distinct_colors(8)$name, cluster_names[1:8])))
+
+ra <- rowAnnotation(df = tibble::column_to_rownames(tibble::enframe(ct_hc_cor_nsc_h[hc_cor_nsc$order], name = 'gene', value = 'cluster'), 'gene'),
+                                           show_legend = c('cluster' = F),
+                   col =  list(cluster = setNames(chameleon::distinct_colors(8)$name, cluster_names[1:8])))
+
 ac <- list(cluster = setNames(chameleon::distinct_colors(8)$name, 1:8))
 
-p_cor_dyn_genes_nsc <- pheatmap::pheatmap(cor_nsc_legc_dyn_genes[hc_cor_nsc$order,hc_cor_nsc$order], show_rownames = F, show_colnames = F, annotation_legend = F,
-                   col = colorRampPalette(c('blue3', 'white', 'red3'))(100),, breaks = seq(-1,1,l=100),
-                   cluster_cols = F, cluster_rows = F, 
-                   annotation_col = ra, annotation_row = ra, annotation_colors = ac)
-# save_pheatmap_png(p_cor_dyn_genes_nsc, './output/metacell_model/figs/nsc_gene_module_analysis/cor_dyn_genes_nsc.png', h = 1600, w = 1600)
-save_pheatmap_pdf(p_cor_dyn_genes_nsc, fig_s2b_path, h = 1600/71, w = 1600/71)
+ch_cor_dyn_genes_nsc <- ComplexHeatmap::Heatmap(cor_nsc_legc_dyn_genes[hc_cor_nsc$order,hc_cor_nsc$order], name = ' ',
+                                                column_split = ct_hc_cor_nsc_h[hc_cor_nsc$order],
+                                                row_split = ct_hc_cor_nsc_h[hc_cor_nsc$order],
+                                                top_annotation = ca, left_annotation = ra,
+                                                show_row_names = F, show_column_names = F, 
+                                                col = circlize::colorRamp2(colors = c('blue3', 'white', 'red3'), breaks = c(-1,0,1)),
+                   cluster_columns = F, cluster_rows = F)
 
-pdf(fig_s2b_legend_path)
+pdf(fig_s2b_path, h = 10, w = 10)
+draw(ch_cor_dyn_genes_nsc)
+dev.off()
+
+# ra <- as.data.frame(tibble::column_to_rownames(tibble::enframe(ct_hc_cor_nsc, name = 'gene', value = 'cluster'), 'gene'))
+# ac <- list(cluster = setNames(chameleon::distinct_colors(8)$name, 1:8))
+
+# p_cor_dyn_genes_nsc <- pheatmap::pheatmap(cor_nsc_legc_dyn_genes[hc_cor_nsc$order,hc_cor_nsc$order], show_rownames = F, show_colnames = F, annotation_legend = F,
+#                    col = colorRampPalette(c('blue3', 'white', 'red3'))(100),, breaks = seq(-1,1,l=100),
+#                    cluster_cols = F, cluster_rows = F, 
+#                    annotation_col = ra, annotation_row = ra, annotation_colors = ac)
+# # save_pheatmap_png(p_cor_dyn_genes_nsc, './output/metacell_model/figs/nsc_gene_module_analysis/cor_dyn_genes_nsc.png', h = 1600, w = 1600)
+# save_pheatmap_pdf(p_cor_dyn_genes_nsc, fig_s2b_path, h = 1600/71, w = 1600/71)
+
+pdf(fig_s2b_legend_pathm, h = 12, w = 12)
+draw(ch_cor_dyn_genes_nsc)
+dev.off()
+
+
 yh <- rev(as.numeric(names(ac$cluster)))
 plot(rep(1, length(yh)), rev(yh), col = rev(ac$cluster), pch = 16, cex = 5, xlim = c(0.9,1.2), xaxt = 'n', yaxt = 'n', xlab = '', ylab = '', bty = 'n')
 text(rep(1.08, length(yh)), rev(yh), labels = paste('Cluster', yh), cex = 3)
 dev.off()
 
 
+# ## Fig S2C
+# print('plotting S2C')
+# all_ct_genes <- get_genes_specific_to_mcs(legc, cl_vec = mcmd$cell_type)
+# nsc_genes <- sort(rownames(all_ct_genes[['NSC']])[all_ct_genes[['NSC']][,'Astrocytes'] <= -1 & all_ct_genes[['NSC']][,'IPC_cyc'] <= -1])
+
+# cl1_genes <- names(ct_hc_cor_nsc[ct_hc_cor_nsc == 1])
+# cl6_genes <- names(ct_hc_cor_nsc[ct_hc_cor_nsc == 6])
+# cl7_genes <- names(ct_hc_cor_nsc[ct_hc_cor_nsc == 7])
+# cl3_genes <- names(ct_hc_cor_nsc[ct_hc_cor_nsc == 3])
+# cl13_genes <- names(ct_hc_cor_nsc[ct_hc_cor_nsc %in% c(1,3)])
+# cl1_sc <- Matrix::colSums(mat_ds[cl1_genes,])
+# cl6_sc <- Matrix::colSums(mat_ds[cl6_genes,])
+# cl7_sc <- Matrix::colSums(mat_ds[cl7_genes,])
+# cc_sc <- Matrix::colSums(mat_ds[c(cl1_genes, cl3_genes, cl6_genes, cl7_genes),])
+# ipc_sc <- Matrix::colSums(mat_ds[ipc_module,])
+# astro_sc <- Matrix::colSums(mat_ds[astro_module,])
+# stem_sc <- Matrix::colSums(mat_ds[stem_module,])
+# nsc_genes_sc <- Matrix::colSums(mat_ds[nsc_genes,])
+
+
+# pdf(fig_s2c_path, h = 350/71, w = 1050/71)
+# par(mfrow = c(1,3), cex.lab = 2, mar = c(5,5,1,1))
+# plot(cl1_sc, cl6_sc, col = color_key$color[match(mcmd$cell_type[mc@mc[names(stem_sc)]], color_key$cell_type)], pch = 16, cex = 0.57, ylab = 'Cluster 6 + 3', xlab = 'Cluster 1')
+# plot(cl1_sc, cl7_sc, col =color_key$color[match(mcmd$cell_type[mc@mc[names(stem_sc)]], color_key$cell_type)], pch = 16, cex = 0.57, ylab = 'Cluster 7', xlab = 'Cluster 1')
+# plot(cl7_sc, cl6_sc, col =color_key$color[match(mcmd$cell_type[mc@mc[names(stem_sc)]], color_key$cell_type)], pch = 16, cex = 0.57, ylab = 'Cluster 6 + 3', xlab = 'Cluster 7')
+# dev.off()
+
 ## Fig S2C
 print('plotting S2C')
-all_ct_genes <- get_genes_specific_to_mcs(legc, cl_vec = mcmd$cell_type)
-nsc_genes <- sort(rownames(all_ct_genes[['NSC']])[all_ct_genes[['NSC']][,'Astrocytes'] <= -1 & all_ct_genes[['NSC']][,'IPC_cyc'] <= -1])
-
-cl1_genes <- names(ct_hc_cor_nsc[ct_hc_cor_nsc == 1])
-cl6_genes <- names(ct_hc_cor_nsc[ct_hc_cor_nsc == 6])
-cl7_genes <- names(ct_hc_cor_nsc[ct_hc_cor_nsc == 7])
-cl3_genes <- names(ct_hc_cor_nsc[ct_hc_cor_nsc == 3])
-cl13_genes <- names(ct_hc_cor_nsc[ct_hc_cor_nsc %in% c(1,3)])
-cl1_sc <- Matrix::colSums(mat_ds[cl1_genes,])
-cl6_sc <- Matrix::colSums(mat_ds[cl6_genes,])
-cl7_sc <- Matrix::colSums(mat_ds[cl7_genes,])
-cc_sc <- Matrix::colSums(mat_ds[c(cl1_genes, cl3_genes, cl6_genes, cl7_genes),])
-ipc_sc <- Matrix::colSums(mat_ds[ipc_module,])
-astro_sc <- Matrix::colSums(mat_ds[astro_module,])
-stem_sc <- Matrix::colSums(mat_ds[stem_module,])
-nsc_genes_sc <- Matrix::colSums(mat_ds[nsc_genes,])
-
-
-pdf(fig_s2c_path, h = 350/71, w = 1050/71)
-par(mfrow = c(1,3), cex.lab = 2, mar = c(5,5,1,1))
-plot(cl1_sc, cl6_sc, col = color_key$color[match(mcmd$cell_type[mc@mc[names(stem_sc)]], color_key$cell_type)], pch = 16, cex = 0.57, ylab = 'Cluster 6 + 3', xlab = 'Cluster 1')
-plot(cl1_sc, cl7_sc, col =color_key$color[match(mcmd$cell_type[mc@mc[names(stem_sc)]], color_key$cell_type)], pch = 16, cex = 0.57, ylab = 'Cluster 7', xlab = 'Cluster 1')
-plot(cl7_sc, cl6_sc, col =color_key$color[match(mcmd$cell_type[mc@mc[names(stem_sc)]], color_key$cell_type)], pch = 16, cex = 0.57, ylab = 'Cluster 6 + 3', xlab = 'Cluster 7')
-dev.off()
-
-## Fig S2D
-print('plotting S2D')
 
 rb12 <- rev(rainbow(12))
 phase_cut_color <- setNames(rb12[phase_cut], names(phase_cut))
@@ -176,8 +242,8 @@ lines(phase_pcu_rm_ss[,1], phase_pcu_rm_ss[,2])
 legend('topleft', legend = sort(unique(phase_cut)), col = unique(phase_cut_color[order(phase_cut)]), pch = 16, cex = 1)
 dev.off()
 
-## Fig S2E
-print('plotting S2E')
+## Fig S2D
+print('plotting S2D')
 nsc_sc <- intersect(names(mc@mc[mc@mc %in% which(mcmd$cell_type == 'NSC')]), colnames(mat_ds))
 
 days <- unique(mat@cell_metadata[nsc_sc,'day'])
@@ -185,7 +251,7 @@ days <- unique(mat@cell_metadata[nsc_sc,'day'])
 nsc_inds <- which(sc_data_df$cell_type == 'NSC')
 lupc <- length(unique(phase_cut))
 bin_seq <- seq(lupc+0.5, 0.5+length(days)*lupc, 12)
-pdf(fig_s2e_path, h = 1050/71, w = 1600/71)
+pdf(fig_s2d_path, h = 1050/71, w = 1600/71)
 par(mfrow = c(3,1), las = 2, cex.lab = 3, cex.axis = 1.5, mar = c(6,6,0.5,0.5))
 boxplot(ipc ~ ., data = sc_data_df[nsc_inds,c('ipc','phase_cut', 'day')], ylim = c(0,quantile(sc_data_df$ipc[nsc_inds], 0.94, na.rm = T)),
        col = rep(rainbow(lupc), length(days)), ylab = 'IPC module ds UMIs', xlab = '')
@@ -198,8 +264,8 @@ boxplot(stem ~ ., data = sc_data_df[nsc_inds,c('stem','phase_cut', 'day')], ylim
 vvv <- sapply(bin_seq, function(i) lines(rep(i,2), c(0,1000), lwd = 3))
 dev.off()
 
-## Fig S2F
-print('plotting S2F')
+## Fig S2E
+print('plotting S2E')
 
 nsc_sc_by_day <- lapply(tail(sort(unique(mat@cell_metadata$day)),-1), function(di) intersect(nsc_sc, rownames(mat@cell_metadata)[mat@cell_metadata$day == di]))
 names(nsc_sc_by_day) <- tail(sort(unique(mat@cell_metadata$day)),-1)
@@ -211,7 +277,7 @@ s_genes_sum <- Matrix::colSums(mat_ds[s_genes,])
 m_genes_sum <- Matrix::colSums(mat_ds[m_genes,])
 
 
-pdf(fig_s2f_path, h = 500/71, w = 1500/71)
+pdf(fig_s2e_path, h = 500/71, w = 1500/71)
 par(mfrow = c(1,3), cex.main = 2, cex.axis = 2, cex.lab = 2, mar = c(6,6,5,1), las = 2)
 boxplot(s_genes_sum[names(nsc_sc_by_day_vec)]/length(s_genes) ~ phase_cut[names(nsc_sc_by_day_vec)], 
             main = 'UMIs per S gene per single NSC per bin\nn_{S genes} = 11', ylab = '', xlab = '')
@@ -223,8 +289,8 @@ boxplot(s_genes_sum[names(nsc_sc_by_day_vec)]/length(s_genes) + m_genes_sum[name
 dev.off()
 
 
-## Fig S2G
-print('plotting S2G')
+## Fig S2F
+print('plotting S2F')
 
 tbl_pba_by_ct <- t(table(sc_data_df$cell_type, sc_data_df$pba))
 tbl_pba_by_ct_norm <- t(t(tbl_pba_by_ct)/colSums(tbl_pba_by_ct))
@@ -235,26 +301,25 @@ rownames(tbl_pba_by_ct_norm) <- gsub('\\d_', '', rownames(tbl_pba_by_ct_norm))
 p_pba_by_ct <- pheatmap::pheatmap(tbl_pba_by_ct_norm[,cust_st_ord], cluster_cols = F, 
                     annotation_legend = F, col = clrmp_abs, fontsize = 12,
                    treeheight_row = 0, treeheight_col = 0)
-save_pheatmap_pdf(p_pba_by_ct, fig_s2g_path, h = 500/71, w = 800/71)
+save_pheatmap_pdf(p_pba_by_ct, fig_s2f_path, h = 500/71, w = 800/71)
 
 
 ## Fig S2H,S2I
 ### Plot IPC vs stem and astro vs stem signatures
-print('plotting S2H,S2I')
+print('plotting S2G,S2H')
 
 
-pdf(fig_s2h_path, w = 800/71, h = 400/71)
+pdf(fig_s2g_path, w = 800/71, h = 400/71)
 par(mfrow = c(1,2), mar = c(5,5,1,1), cex.lab = 1, cex.axis = 1)
 plot(sc_data_df[names(matched_coords_bins),'ipc'], sc_data_df[names(matched_coords_bins),'stem'], col = mcmd$color[mc@mc[names(matched_coords_bins)]], ylab = 'Stem module UMIs', xlab = 'IPC module UMIs', pch =16, cex = 0.5)
 plot(sc_data_df[names(matched_coords_bins_astro),'astro'], sc_data_df[names(matched_coords_bins_astro),'stem'], col = mcmd$color[mc@mc[names(matched_coords_bins_astro)]], ylab = 'Stem module UMIs', xlab = 'Astro module UMIs', pch =16, cex = 0.5)
 dev.off()
 
 ## Fig S2J
-print('plotting S2J')
+print('plotting S2I')
 
-pdf(fig_s2j_path, h = 14, w = 18)
-par(mfrow = c(2,2), mar = c(6,7,4,1), cex.lab = 3, cex.axis = 3, cex.main = 5)
-
+pdf(fig_s2i_path, h = 7, w = 28)
+par(mfrow = c(1,4), mar = c(6,7,4,1), cex.lab = 3, cex.axis = 3, cex.main = 5)
 
 NUM_PARTITION <- 13
 phase_qs <- seq(1-1e-2,max(phase),l=NUM_PARTITION)
@@ -275,13 +340,48 @@ ttt <- sapply(1:nrow(mat_ds_cc_genes_select_ord_phase), function(i) {
         # text(x = sum(bin_borders[c(j, j+1)])/2, y = heights_text[[i]], labels = nmj, col = phase_color_key[grep(nmj, names(phase_color_key), ign = T)], cex = 3)
     })
     lines(sort(phase[nsc_sc]), mat_ds_cc_genes_select_ord_phase_rm[i,], col = 'black', lwd = 3)
-    if (i == 1) {legend('topleft', legend = glue::glue('Rollmean k = {K}'), lwd = 3, col = 'black', cex = 2)}
+    if (i == 1) {legend('topleft', legend = glue::glue('Rollmean k = {K}'), lwd = 3, col = 'black', cex = 2, fill = 'white')}
+    title(main = rownames(mat_ds_cc_genes_select_ord_phase)[[i]])
     title(xlab = 'phase', line = 4)
     title(ylab = 'Downsampled UMIs', line = 4)
 })
 dev.off()
 
-## Fig S2H
+## Fig S2J
+print('plotting S2J')
+
+nsc_late <- as.character(mcmd$metacell[mcmd$cell_type == 'NSC' & mcmd$mean_day > 16.5])
+nsc_early <- as.character(mcmd$metacell[mcmd$cell_type == 'NSC' & mcmd$mean_day < 14.5])
+nsc_late_rna <- rowMeans(legc[,as.numeric(nsc_late)])
+nsc_early_rna <- rowMeans(legc[,as.numeric(nsc_early)])
+astro_rna <- rowMeans(legc[,mcmd$metacell[mcmd$cell_type == 'Astrocytes']])
+
+
+pdf(fig_s2j_path, h = 500/71, w = 1000/71)
+# png('./output/mcatac/figs/astro_and_early_nsc_vs_late_nsc_rna.png', h = 500, w = 1000)
+par(mfrow = c(1,2), cex.lab = 1.52, cex.main = 1.5)
+plot(nsc_late_rna, astro_rna, pch = 16, cex = .15, xlab = 'NSC (mean day > 16.5) RNA', ylab = 'Astrocytes RNA', main = 'Astro vs late NSC - RNA')
+abline(a =-2,b = 1,col='red', lty=  2, lwd=  1)
+abline(a =+2,b = 1,col='red', lty=  2, lwd=  1)
+abline(a =-1,b = 1,col='green', lty=  2, lwd=  1)
+abline(a =+1,b = 1,col='green', lty=  2, lwd=  1)
+abline(a =+0,b = 1,col='blue', lty=  2, lwd=  1)
+legend('bottomright', legend = c('0 LFC', '1 LFC','2 LFC'), col = c('blue', 'green', 'red'), lty = 2, lwd =1)
+corh <- cor(nsc_late_rna, astro_rna, method = 'pearson')
+text(-13.5,-6, labels = paste0('R^2 = ', signif(corh**2, 2)), cex = 1.5)
+plot(nsc_late_rna, nsc_early_rna, pch = 16, cex = .15, xlab = 'NSC (mean day > 16.5) RNA', ylab = 'NSC (mean day < 14.5) RNA', main = 'Early vs late NSC - RNA')
+abline(a =-2,b = 1,col='red', lty=  2, lwd=  1)
+abline(a =+2,b = 1,col='red', lty=  2, lwd=  1)
+abline(a =-1,b = 1,col='green', lty=  2, lwd=  1)
+abline(a =+1,b = 1,col='green', lty=  2, lwd=  1)
+abline(a =+0,b = 1,col='blue', lty=  2, lwd=  1)
+legend('bottomright', legend = c('0 LFC', '1 LFC','2 LFC'), col = c('blue', 'green', 'red'), lty = 2, lwd =1)
+corh <- cor(nsc_late_rna, nsc_early_rna, method = 'pearson')
+text(-13.5,-9, labels = paste0('R^2 = ', signif(corh**2, 2)), cex = 1.5)
+dev.off()
+
+## Fig S2K
+print('plotting S2K')
 
 astro_mcs <- which(mcmd$cell_type == 'Astrocytes')
 

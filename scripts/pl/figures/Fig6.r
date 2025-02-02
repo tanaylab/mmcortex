@@ -98,12 +98,12 @@ boxplot_and_ks <- function(factor_df, factor1, factor2, y_vec, ks.alternative = 
         npi <- ifelse(npi > 3, 3, npi) 
     return(npi)}
 
-    plot_asterisks <- function(x, y, npj) {
+    plot_asterisks <- function(x, y, npj, ast_cex = 2.5, spacing_factor = 0.2) {
         if (npj > 1) {
-            xl <- seq(from = x - 0.2*npj, to = x + 0.2*npj, length.out = npj)
+            xl <- seq(from = x - spacing_factor*npj, to = x + spacing_factor*npj, length.out = npj)
         } else if (npj == 1) {xl <- x}
         else {xl <- NULL}
-        points(unlist(xl), rep(y, length(unlist(xl))), pch = 8, cex = 2.5, col = 'red', lwd= 1)
+        points(unlist(xl), rep(y, length(unlist(xl))), pch = 8, cex = ast_cex, col = 'red', lwd= 1)
     }
 
     npi <- get_num_asterisks(eg$ks_p_res)

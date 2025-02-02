@@ -49,7 +49,8 @@ fig_s3c_path <- glue::glue(file.path(wd, 'output/paper_figs/FigS3/FigS3C.{device
 fig_s3d_path <- glue::glue(file.path(wd, 'output/paper_figs/FigS3/FigS3D.{device}'))
 fig_s3e_path <- glue::glue(file.path(wd, 'output/paper_figs/FigS3/FigS3E.{device}'))
 fig_s3f_path <- glue::glue(file.path(wd, 'output/paper_figs/FigS3/FigS3F.{device}'))
-fig_s3ghij_path <- glue::glue(file.path(wd, 'output/paper_figs/FigS3/FigS3GHIJ.{device}'))
+fig_s3g_path <- glue::glue(file.path(wd, 'output/paper_figs/FigS3/FigS3G.{device}'))
+fig_s3h_path <- glue::glue(file.path(wd, 'output/paper_figs/FigS3/FigS3H.{device}'))
 
 pdf(fig_s3a_path, h = 500/71, w = 500/71)
 # png('./output/mcatac/figs/total_frags_per_cells_per_sample.png', h = 500, w = 500)
@@ -127,7 +128,7 @@ legend('topright', legend = c('All TSS-proximal peaks', 'Near astro module TSSs'
 dev.off()
 
 
-## Fig S3GHIJ
+## Fig S3G
 
 cust_grid <- function(ylab = 'Normalized ATAC') {
     LWD <- 2
@@ -151,7 +152,7 @@ vec_layout <- c(rep(c(1,2), 2), rep(c(3,4), 1), rep(c(5,6), 2), rep(c(7,8), 2), 
 mat_layout <- matrix(vec_layout, nrow = 8, ncol = 2, byrow = T)
 
 
-pdf(fig_s3ghij_path, h = 600/71, w = 600/71)
+pdf(fig_s3g_path, h = 600/71, w = 600/71)
 
 MAR_LL <- 4
 MAR_LR <- 1
@@ -199,3 +200,35 @@ barplot(t(tbl_vnn_ct_cpn_norm), col = col_key[colnames(tbl_vnn_ct_cpn_norm)], xa
 title(xlab = 'Differentiation bin', line = 3)
 dev.off()
 
+
+
+
+## Fig S3H
+
+
+nsc_late <- as.character(mcmd$metacell[mcmd$cell_type == 'NSC' & mcmd$mean_day > 16.5])
+nsc_early <- as.character(mcmd$metacell[mcmd$cell_type == 'NSC' & mcmd$mean_day < 14.5])
+
+
+pdf(fig_s3h_path, h = 500/71, w = 1000/71)
+# png('./output/mcatac/figs/astro_and_early_nsc_vs_late_nsc_atac.png', h = 500, w = 1000)
+par(mfrow = c(1,2), cex.lab = 1.52, cex.main = 1.5)
+plot(rowMeans(a_legc[rownames(a_legc_avg_ct),nsc_late]), a_legc_avg_ct[,'Astrocytes'], pch = 16, cex = .15, xlab = 'NSC (mean day > 16.5) ATAC', ylab = 'Astrocytes ATAC', main = 'Astro vs late NSC - ATAC')
+abline(a =-1,b = 1,col='red', lty=  2, lwd=  1)
+abline(a =+1,b = 1,col='red', lty=  2, lwd=  1)
+abline(a =-0.5,b = 1,col='green', lty=  2, lwd=  1)
+abline(a =+0.5,b = 1,col='green', lty=  2, lwd=  1)
+abline(a =+0,b = 1,col='blue', lty=  2, lwd=  1)
+legend('bottomright', legend = c('0 LFC', '0.5 LFC','1 LFC'), col = c('blue', 'green', 'red'), lty = 2, lwd =1)
+corh <- cor(rowMeans(a_legc[rownames(a_legc_avg_ct),nsc_late]), a_legc_avg_ct[,'Astrocytes'], method = 'pearson')
+text(-15.5,-13, labels = paste0('R^2 = ', signif(corh**2, 2)), cex = 1.5)
+plot(rowMeans(a_legc[rownames(a_legc_avg_ct),nsc_late]), rowMeans(a_legc[rownames(a_legc_avg_ct),nsc_early]), pch = 16, cex = .15, xlab = 'NSC (mean day > 16.5) ATAC', ylab = 'NSC (mean day < 14.5) ATAC', main = 'Early vs late NSC - ATAC')
+abline(a =-1,b = 1,col='red', lty=  2, lwd=  1)
+abline(a =+1,b = 1,col='red', lty=  2, lwd=  1)
+abline(a =-0.5,b = 1,col='green', lty=  2, lwd=  1)
+abline(a =+0.5,b = 1,col='green', lty=  2, lwd=  1)
+abline(a =+0,b = 1,col='blue', lty=  2, lwd=  1)
+legend('bottomright', legend = c('0 LFC', '0.5 LFC','1 LFC'), col = c('blue', 'green', 'red'), lty = 2, lwd =1)
+corh <- cor(rowMeans(a_legc[rownames(a_legc_avg_ct),nsc_late]), rowMeans(a_legc[rownames(a_legc_avg_ct),nsc_early]), method = 'pearson')
+text(-15.5,-13, labels = paste0('R^2 = ', signif(corh**2, 2)), cex = 1.5)
+dev.off()
