@@ -35,6 +35,12 @@ fig_4g_path <- glue::glue('./output/paper_figs/Fig4/Fig4G.{device}')
 fig_4h_path <- glue::glue('./output/paper_figs/Fig4/Fig4H.{device}')
 
 
+# load(file = file.path(wd, 'output/mcatac/ct_peaks.rda'))
+
+# nsc_peaks <- intersect(rownames(avg_meth_all), ct_peaks$peak_name[ct_peaks$type == 'nsc_peak'])
+# ipc_peaks <- intersect(rownames(avg_meth_all), ct_peaks$peak_name[ct_peaks$type == 'ipc_peak'])
+# astro_peaks <- intersect(rownames(avg_meth_all), ct_peaks$peak_name[ct_peaks$type == 'astro_peak'])
+# neuro_peaks <- intersect(rownames(avg_meth_all), ct_peaks$peak_name[ct_peaks$type == 'neuro_peak'])
 
 ## Fig 4B
 
