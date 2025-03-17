@@ -34,18 +34,10 @@ fig_4f_path <- glue::glue('./output/paper_figs/Fig4/Fig4F.{device}')
 fig_4g_path <- glue::glue('./output/paper_figs/Fig4/Fig4G.{device}')
 fig_4h_path <- glue::glue('./output/paper_figs/Fig4/Fig4H.{device}')
 
-
-# load(file = file.path(wd, 'output/mcatac/ct_peaks.rda'))
-
-# nsc_peaks <- intersect(rownames(avg_meth_all), ct_peaks$peak_name[ct_peaks$type == 'nsc_peak'])
-# ipc_peaks <- intersect(rownames(avg_meth_all), ct_peaks$peak_name[ct_peaks$type == 'ipc_peak'])
-# astro_peaks <- intersect(rownames(avg_meth_all), ct_peaks$peak_name[ct_peaks$type == 'astro_peak'])
-# neuro_peaks <- intersect(rownames(avg_meth_all), ct_peaks$peak_name[ct_peaks$type == 'neuro_peak'])
-
 ## Fig 4B
 
 pdf(file.path(wd, fig_4b_path), h = 350/81, w = 1050/81)
-par(mfrow = c(1,4), las = 2, mar = c(7,4,2,1), cex.axis = 1.5, cex.main = 2)
+par(mfrow = c(1,4), las = 2, mar = c(7,6,2,1), cex.axis = 1.5, cex.main = 2, cex.lab = 2.5)
 
 t13_nsc <- table(cut(avg_meth_all[nsc_peaks,grep('E13', colnames(avg_meth_all))], breaks = meth_qs))
 t17_nsc <- table(cut(avg_meth_all[nsc_peaks,grep('E17', colnames(avg_meth_all))], breaks = meth_qs))
@@ -56,7 +48,10 @@ LEGEND_CEX <- 1.5
 barplot(do.call('c', lapply(seq_along(t13_nsc), function(i) c(t13_nsc[[i]], t17_nsc[[i]]))), space = rep(c(2, 0.8), length(t13_nsc)), main = 'NSC CREs', 
                             col = rep(c(col_key[['NSC']], adjustcolor(col_key[['NSC']], alpha.f = 0.2)), length(t13_nsc)))
 axis(1, at=seq(2,5*(length(t13_nsc)-1),4.8), labels = axis_labels)
+title(ylab = 'Number of CREs', line = 4)
 legend('topright', col = c(col_key[['NSC']], adjustcolor(col_key[['NSC']], alpha.f = 0.2)), cex = LEGEND_CEX, pch = 15, legend = c('E13','E17'))
+                
+par(mar = c(7,4,2,1))
                 
 t13_astro <- table(cut(avg_meth_all[astro_peaks,grep('E13', colnames(avg_meth_all))], breaks = meth_qs))
 t17_astro <- table(cut(avg_meth_all[astro_peaks,grep('E17', colnames(avg_meth_all))], breaks = meth_qs))
@@ -102,7 +97,6 @@ p_inc_atac <- pheatmap::pheatmap(a_legc_by_day_n[nsc_inc_peaks[ord],], fontsize_
 setHook("grid.newpage", NULL, "replace")
 grid.text("ATAC of temporally activating CREs", x=-0.05, rot=90, gp=gpar(fontsize=16))
 dev.off()
-# save_pheatmap_pdf(p_inc_atac, file.path(wd, fig_4c_path), h = 600/71, w = 500/71)
 
 ## Fig 4D
 
@@ -124,8 +118,6 @@ p_meth_inc_atac <- pheatmap::pheatmap(avg_meth_all[nsc_inc_peaks[ord],grep('E\\d
 setHook("grid.newpage", NULL, "replace")
 grid.text("Methylation of temporally activating CREs", x=-0.05, rot=90, gp=gpar(fontsize=16))
 dev.off()
-# save_pheatmap_pdf(p_meth_inc_atac, file.path(wd, fig_4d_path), h = 900/101, w = 450/71)
-
 
 ## Fig 4E
 pdf(file.path(wd, fig_4e_path), h = 450/71, w = 300/71)
@@ -144,9 +136,6 @@ p_dec_atac <- pheatmap::pheatmap(a_legc_by_day_n[nsc_dec_peaks[ord],], fontsize_
 setHook("grid.newpage", NULL, "replace")
 grid.text("ATAC of temporally deactivating CREs", x=-0.05, rot=90, gp=gpar(fontsize=16))
 dev.off()
-# save_pheatmap_pdf(p_dec_atac, file.path(wd, fig_4f_path), h = 600/71, w = 500/71)
-
-
 
 ## Fig 4F
 pdf(file.path(wd, fig_4f_path), h = 450/71, w = 300/71)
@@ -167,8 +156,6 @@ p_meth_dec_atac <- pheatmap::pheatmap(avg_meth_all[nsc_dec_peaks[ord],grep('E\\d
 setHook("grid.newpage", NULL, "replace")
 grid.text("Methylation of temporally deactivating CREs", x=-0.05, rot=90, gp=gpar(fontsize=16))
 dev.off()
-# save_pheatmap_pdf(p_meth_dec_atac, file.path(wd, fig_4f_path), h = 900/101, w = 450/71)
-
 
 ## Fig 4G
 
@@ -182,13 +169,13 @@ i <- 'inc_peaks'
 boxplot(pltmt[i,] ~ factor(mcmd$cell_type, levels = cust_st_ord), 
                 ylim = quantile(pltmt[i,], c(0.02,1)), 
                 col = col_key[cust_st_ord], yaxt = 's',xaxt = 'n', xlab  = '', ylab = '',main = '', horizontal = F)
-title(ylab = 'NSC activating CREs\nlog2 fraction', line = 7)
+title(ylab = 'NSC activating CREs\nmean accessibility', line = 7)
 par(mar = c(10,11,2,1))
 i <- 'dec_peaks'
 boxplot(pltmt[i,] ~ factor(mcmd$cell_type, levels = cust_st_ord), 
                 ylim = quantile(pltmt[i,], c(0.02,1)), 
                 col = col_key[cust_st_ord], yaxt = 's',xaxt = 's', xlab  = '', ylab = '',main = '', horizontal = F)
-title(ylab = 'NSC deactivating CREs\nlog2 fraction', line = 7)
+title(ylab = 'NSC deactivating CREs\nmean accessibility', line = 7)
 dev.off()
 
 
@@ -196,7 +183,6 @@ dev.off()
 
 pdf(file.path(wd, fig_4h_path), h = 450/71, w = 750/71)
 mari <- c(4.3,3,3,1)
-# par(mfrow = c(2,3), mar = mari, cex.lab = 1.82, cex.axis = 1.52, cex.main = 2, las = 2)
 par(mar = mari, cex.lab = 1.82, cex.axis = 1.52, cex.main = 2, las = 2)
 EXPAND_FACTOR <- 4
 RATIO <- 1.4
@@ -206,7 +192,7 @@ plt_lst <- c('Dnmt1','Dnmt3a','Dnmt3b','Tet1','Tet2','Tet3')
 iii <- sapply(plt_lst, function(i) {
         if (i %in% c('Dnmt1','Tet1')) {
             mari[[2]] <- 5
-            ylabi <- 'log2 fraction'
+            ylabi <- 'gene expression'
         } else {
             mari[[2]] <- 3
             ylabi <- ''
@@ -222,8 +208,6 @@ iii <- sapply(plt_lst, function(i) {
         par(mar = mari)
         boxplot(pltmt[i,] ~ factor(mcmd$cell_type, levels = cust_st_ord), 
                 ylim = c(-16.6, -12), 
-                # ylim = quantile(pltmt[i,], c(0.02,0.98)), 
-                # ylim = c(-16.6, -12), 
                 col = col_key[cust_st_ord], yaxt = 's',xaxt = xaxti, xlab  = '', ylab = ylabi,main = i, horizontal = F)
     })
 dev.off()

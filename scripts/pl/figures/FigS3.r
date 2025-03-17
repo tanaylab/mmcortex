@@ -1,6 +1,7 @@
 wd <- '/net//mraid20//export/tgdata/users/yonshap/proj/mmcortex/'
 setwd(wd)
 library(misha)
+library(grid)
 gsetroot('/home/aviezerl/mm10')
 source(file.path(wd, 'scripts/util.r'))
 library(metacell)
@@ -67,7 +68,7 @@ par(las = 2, mar = c(7, 5, 2,1))
 boxplot(frags_in_peaks_per_cells/total_frags_per_cells ~ mca@cell_to_metacell$sample_name[match(names(total_frags_per_cells), mca@cell_to_metacell$cell_id)],
                ylab = '', xlab = '')
 title(xlab = 'Sample', line = 5)
-title(ylab = 'Fragments in peaks per cell', line = 3)
+title(ylab = 'Fragments in CREs per cell', line = 3)
 dev.off()
 
 
@@ -91,6 +92,11 @@ pp <- pheatmap::pheatmap(pltmt[hc_pltmt$order,], cluster_rows = F,
             show_colnames=F, treeheight_col = 0, treeheight_row = 0,fontsize = 12, clustering_method = 'ward.D',
             col = colorRampPalette(c('blue3', 'white', 'red3'))(100), breaks = seq(-0.5,0.5,l=101))
 # save_pheatmap_png(pp, './output/mcatac/figs/atac_cortex_matching_promoter_activity.png', h = 3200, w = 1600)
+
+lr <- ifelse(rownames(pltmt) %in% marks, rownames(pltmt), '')
+
+pp$gtable <- add.flag(pheatmap = pp, kept.labels = lr, repel.degree = 0)
+
 save_pheatmap_pdf(pp, fig_s3d_path, h = 800/71, w = 400/71)
 
 ## Fig S3E
@@ -102,6 +108,11 @@ pp2 <- pheatmap::pheatmap(pltmt2[,cust_mc_ord_st], cluster_rows = F, cluster_col
     show_colnames=F, treeheight_col = 0, treeheight_row = 0,fontsize = 12, clustering_method = 'ward.D',
     col = colorRampPalette(c('blue3', 'white', 'red3'))(100), breaks = seq(-3,3,l=101))
 # save_pheatmap_png(pp2, './output/mcatac/figs/atac_cortex_matching_rna_feature_activity.png', h = 3200, w = 2000)
+
+lr <- ifelse(rownames(pltmt2) %in% marks, rownames(pltmt2), '')
+
+pp2$gtable <- add.flag(pheatmap = pp2, kept.labels = lr, repel.degree = 0)
+
 save_pheatmap_pdf(pp2, fig_s3e_path, h = 800/71, w = 400/71)
 
 
@@ -123,7 +134,7 @@ lines(d2$x, d2$y, col = col_key[['Astrocytes']], lwd = 3, lty = 2)
 lines(d3$x, d3$y, col = col_key[['IPC']], lwd = 3, lty = 2)
 lines(d4$x, d4$y, col = col_key[['NSC']], lwd = 3, lty = 2)
 lines(d5$x, d5$y, col = 'darkorange', lwd = 3, lty = 2)
-legend('topright', legend = c('All TSS-proximal peaks', 'Near astro module TSSs', 'Near IPC module TSSs', 'Near stem module TSSs', 'Near marker gene TSSs'),
+legend('topright', legend = c('All TSS-proximal CREs', 'Near astro module TSSs', 'Near IPC module TSSs', 'Near stem module TSSs', 'Near marker gene TSSs'),
        col = c('black', col_key[c('Astrocytes', 'IPC', 'NSC')], 'darkorange'), lty = rep(2,5), lwd = rep(2,5), cex = 1)
 dev.off()
 
@@ -163,13 +174,13 @@ par(mar = c(0.5,MAR_LL,3,1), cex.lab = 1.52, cex.main = 1.5)
 
 ctsi <- c('CthPN', 'SCPN', 'CPN_L2-3', 'CPN_L5_6', 'IPC')
 boxplot(a_legc_avg_ct[pks101,ctsi], col = col_key[ctsi], 
-                main = glue::glue('CfuPN+, IPC+ peaks, n = {length(pks101)}'), ylab = '',
+                main = glue::glue('CfuPN+, IPC+ CREs, n = {length(pks101)}'), ylab = '',
                  xaxt = 'n', yaxt = 's', ylim = c(-16.6, -14))
 title(ylab = 'Mean accessibility', line = 2)
 
 par(mar = c(0.5,MAR_LR,3,1))
 boxplot(a_legc_avg_ct[pks110,ctsi], col = col_key[ctsi], 
-        main = glue::glue('CPN+, IPC+ peaks, n = {length(pks110)}'), xaxt = 'n', yaxt = 'n', ylim = c(-16.6, -14))
+        main = glue::glue('CPN+, IPC+ CREs, n = {length(pks110)}'), xaxt = 'n', yaxt = 'n', ylim = c(-16.6, -14))
 par(mar = c(1.5,MAR_LL,1.5,1))
 barplot(t(tbl_vnn_ct_cfupn_norm), col = col_key[colnames(tbl_vnn_ct_cfupn_norm)], 
         xaxt = 'n', yaxt = 'n', bty = 'n')

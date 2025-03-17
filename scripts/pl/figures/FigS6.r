@@ -14,10 +14,11 @@ device <- 'pdf'
 fig_s6a_path <- file.path(wd, glue::glue('./output/paper_figs/FigS6/FigS6A.{device}'))
 fig_s6b_path <- file.path(wd, glue::glue('./output/paper_figs/FigS6/FigS6B.{device}'))
 fig_s6c_path <- file.path(wd, glue::glue('./output/paper_figs/FigS6/FigS6C.{device}'))
+fig_s6d_path <- file.path(wd, glue::glue('./output/paper_figs/FigS6/FigS6D.{device}'))
 # fig_6def_path <- file.path(wd, glue::glue('./output/paper_figs/FigS6/FigS6DEF.{device}'))
 
 
-
+## Fig S6A
 uuu <- lapply(seq_along(tm_w_add_feat@motif_models), function(i) {
     pssmi <- tm_w_add_feat@motif_models[[i]]$pssm
     if (nrow(pssmi) > 0) {
@@ -37,6 +38,9 @@ uuu <- lapply(seq_along(tm_w_add_feat@motif_models), function(i) {
 ggplot2::ggsave(file = fig_s6a_path, 
             arrangeGrob(grobs = uuu, ncol = 4), width = 16, height = 16)  ## save plot
 
+
+
+## Fig S6B
 
 delta_atac_inc_peaks <- names(delta_ipc_nsc[delta_ipc_nsc > 0])
 delta_atac_dec_peaks <- names(delta_ipc_nsc[delta_ipc_nsc <= 0])
@@ -114,6 +118,8 @@ dev.off()
 
 # png(file.path(wd, 'output/sequence_modeling/figs/delta_atac_vs_delta_proximal_atac.png'), h = 500, w = 600)
 
+## Fig S6C
+
 pb <- multintersect(names(atac_diff_vec), names(delta_ipc_nsc), rownames(x_all))
 pdf(fig_s6c_path, h = 500/71, w = 600/71)
 par(las = 2, mar = c(13, 5, 3,1), cex.lab = 1.5)
@@ -129,3 +135,39 @@ text(1.5, 2, labels = paste0('cor = ',
 dev.off()
 
 
+## Fig S6D
+
+pdf(fig_s6d_path, h = 400/71, w = 650/71)
+par(las = 2, mar = c(8, 5, 3, 1))
+boxplot_vec(xvec = olig2_vec, yvec = rm_ama[names(olig2_vec)], 
+            nm = 'methylation vs E_box_1 energy', num_bins = 10, 
+            ylab = 'NSC methylation', xlab = '')
+title(xlab = 'E_box_1 energy', line = 6)
+dev.off()
+
+## Fig S6E
+
+
+pdf(file.path(wd, 'output/sequence_modeling/figs/xgboost_predicted_vs_observed_ENCODE_dELS_pELS_mmcortex.pdf'), 
+        h = 500/71, w = 500/71)
+plot(delta_els[setdiff(names(pred_score_new), rownames(x_all))], 
+        pred_score_new[setdiff(names(pred_score_new), rownames(x_all))],
+        pch = 1, cex = 0.42, col = adjustcolor('black', alpha.f = 0.65), 
+        main = 'IPC - NSC accessibility', xlab = 'Observed', ylab = 'Predicted')
+points(delta_els[intersect(names(pred_score_new), rownames(x_all))], 
+        pred_score_new[intersect(names(pred_score_new), rownames(x_all))], 
+        pch = 1, cex = 0.42, col = adjustcolor('red', alpha.f = 0.25))
+abline(0,1,col = 'green', lty = 2, lwd = 3)
+legend('bottomright', legend = c('ENCODE SCREEN pELS/dELS', 'Cortex CREs'), 
+        pch = 1, col = c('black', 'red'), cex = 1, pt.cex = 0.42, bg = 'white')
+dev.off()
+
+## Fig S6F
+
+pdf(file.path(wd, 'output/sequence_modeling/figs/model_r2_vs_prox_d.pdf'), h = 250/71, w = 250/71)
+par(las = 2, mar = c(6,6,2,1))
+barplot(unlist(r2_add), xlab = '', ylab = '')
+title(xlab = 'Neighbor counting radius [bp]', line = 4)
+title(ylab = 'Improvement on model R^2', line = 4)
+axis(1, at = 1.2*(1:length(unlist(r2_add)))-0.5, labels = ds)
+dev.off()

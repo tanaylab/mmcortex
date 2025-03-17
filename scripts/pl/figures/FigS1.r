@@ -11,7 +11,7 @@ db_path = file.path(wd, 'scdb')
 if (!dir.exists(db_path)) {dir.create(db_path)}
 scdb_init(db_path, force_reinit = T)
 scfigs_init(file.path(wd, "figs"))
-source('./scripts/util.r')
+source(file.path(wd, 'scripts/util.r'))
 
 nm = 'pl'
 
@@ -21,7 +21,7 @@ mc = scdb_mc(nm)
 feats = scdb_gset(paste0(nm, '_f'))
 feats = names(feats@gene_set)
 
-mg_bon_marks <- as.data.frame(t(sapply(apply(readr::read_csv('./input/marker_genes.tsv'), 1, 
+mg_bon_marks <- as.data.frame(t(sapply(apply(readr::read_csv(file.path(wd, 'input/marker_genes.tsv')), 1, 
                                              stringr::str_split, ' '), function(x) c(x[[1]][[1]], x[[1]][[length(x[[1]])]]))))
 
 colnames(mg_bon_marks) <- c('cell_type', 'marks')
@@ -31,7 +31,7 @@ names(mbm_lst) <- mg_bon_marks$cell_type
 
 legc <- log2(1e-5 + mc@e_gc)
 
-mcmd = vroom::vroom('./output/metacell_model/mcmd_pl_cort.tsv')
+mcmd = vroom::vroom(file.path(wd, 'output/metacell_model/mcmd_pl_cort.tsv'))
 col_key <- tibble::deframe(unique(mcmd[,c('cell_type', 'color')]))
 color_key = unique(mcmd[,c('cell_type', 'color')])
 
@@ -48,14 +48,12 @@ ann_colors = list('cell_type' = tibble::deframe(unique(mcmd[,c('cell_type', 'col
                                       seq(13,18,l=100)))
 
 device <- 'pdf'
-fig_s1ab_path <- glue::glue('./output/paper_figs/FigS1/FigS1AB.{device}')
-# fig_s1b_path <- glue::glue('./output/paper_figs/FigS1/FigS1B.{device}')
-fig_s1c_path <- glue::glue('./output/paper_figs/FigS1/FigS1C.{device}')
-fig_s1d_path <- glue::glue('./output/paper_figs/FigS1/FigS1D.{device}')
-fig_s1e_path <- glue::glue('./output/paper_figs/FigS1/FigS1E.{device}')
-fig_s1f_path <- glue::glue('./output/paper_figs/FigS1/FigS1F.{device}')
-fig_s1g_path <- glue::glue('./output/paper_figs/FigS1/FigS1G.{device}')
-# fig_s1h_path <- glue::glue('./output/paper_figs/FigS1/FigS1H.{device}')
+fig_s1ab_path <- file.path(wd, glue::glue('output/paper_figs/FigS1/FigS1AB.{device}'))
+fig_s1c_path <- file.path(wd, glue::glue('output/paper_figs/FigS1/FigS1C.{device}'))
+fig_s1d_path <- file.path(wd, glue::glue('output/paper_figs/FigS1/FigS1D.{device}'))
+fig_s1e_path <- file.path(wd, glue::glue('output/paper_figs/FigS1/FigS1E.{device}'))
+fig_s1f_path <- file.path(wd, glue::glue('output/paper_figs/FigS1/FigS1F.{device}'))
+fig_s1g_path <- file.path(wd, glue::glue('output/paper_figs/FigS1/FigS1G.{device}'))
 
 
 ## Fig S1A
@@ -94,7 +92,7 @@ p_filt_non_cort_rna <- pheatmap::pheatmap(legc[c('Fabp7',unique(unlist(mbm_lst))
 save_pheatmap_pdf(p_filt_non_cort_rna, fig_s1c_path, h = 600/71, w = 1000/71)
 
 
-mcmd = vroom::vroom('./output/metacell_model/mcmd_pl_cort.tsv')
+mcmd = vroom::vroom(file.path(wd, 'output/metacell_model/mcmd_pl_cort.tsv'))
 col_key <- tibble::deframe(unique(mcmd[,c('cell_type', 'color')]))
 color_key = unique(mcmd[,c('cell_type', 'color')])
 cust_st_ord = c('OPCs','Astrocytes','NSC','IPC_cyc', 'IPC','iCPN/CfuPN', 'iCPN_early','iCPN_late',
@@ -105,7 +103,7 @@ cust_mc_ord_st = unlist(lapply(cust_st_ord, function(s) setNames(which(mcmd$cell
 
 
 ## Fig S1D
-load('./data/gene_modules_mcmd_pl_cort.Rda')
+load(file.path(wd, 'data/gene_modules_mcmd_pl_cort.Rda'))
 
 mc <- scdb_mc('pl_cort')
 legc <- log2(1e-5 + mc@e_gc)
@@ -115,7 +113,6 @@ p_gene_module_phm <- pheatmap::pheatmap(pltmt, cluster_rows = F, cluster_cols = 
                 fontsize_row = 6,
                         gaps_row = seq(10,10*length(gene_modules), 10), 
                                 gaps_col = cumsum(table(mcmd$cell_type)[cust_st_ord]),
-                   # annotation_row = ar, 
                    show_rownames = F,
                    show_colnames = F,
                    col = colorRampPalette(c('blue3', 'white', 'red3'))(100), 
@@ -147,21 +144,6 @@ barplot(ct_day_mat_norm[cust_st_ord,], col = color_key$color[match(cust_st_ord, 
 dev.off()
 
 
-# ## Fig S1G
-
-# legc_avg_ct <- t(tgs_matrix_tapply(legc, mcmd$cell_type, mean))
-# pltmt <- legc_avg_ct[c(mbm_lst[['NSC']],'Mapt', 'Mef2c', 'Runx1t1'),cust_st_ord]
-# ach <- as.data.frame(colnames(pltmt))
-# rownames(ach) <- ach[,1]
-# colnames(ach) <- 'cell_type'
-
-# p_legc_nsc_mat_neu_scores_avg_ct <- pheatmap::pheatmap(pltmt - rowMeans(pltmt), annotation_col = ach, annotation_colors = list(cell_type = col_key),
-#          cluster_cols = F,cluster_rows = F, clustering_method = 'ward.D2',annotation_legend = F, 
-#          treeheight_row = 0, fontsize_col = 14, fontsize_row = 14, 
-#                   col = colorRampPalette(c('blue3','white','red3'))(100), breaks = seq(-3,3,l=100))
-
-# save_pheatmap_pdf(p_legc_nsc_mat_neu_scores_avg_ct, fig_s1g_path, h = 600/71, w = 600/71)
-
 ## Fig S1G
 mcf <- scdb_mctnetflow('pl_cort')
 ct_flow_out_ls <- lapply(cust_st_ord, function(cti) do.call('rbind', lapply(mcf@mc_forward, function(x) rowSums(tgs_matrix_tapply(x[which(mcmd$cell_type == cti),], mcmd$cell_type, sum, na.rm = T), na.rm = T)/sum(colSums(x, na.rm = T), na.rm = T))))
@@ -187,7 +169,7 @@ for (ct in cust_st_ord) {
          main = glue::glue('{ct} incoming flows'),  xaxt = 'n')
     if (ct == tail(cust_st_ord, 1)) {axis(1, at = 1:5, labels = xlabs)}
     title(ylab = 'Relative flow', line = 4, cex.lab = 2)
-    sususu <- sapply(colnames(xi), function(ct) {
+    dummy <- sapply(colnames(xi), function(ct) {
             lines(1:5, xi[,ct], col = color_key$color[color_key$cell_type == ct], lwd = 3)
             points(1:5, xi[,ct], col = color_key$color[color_key$cell_type == ct], pch = 16, cex = 2)
     })
@@ -198,46 +180,9 @@ for (ct in cust_st_ord) {
          main = glue::glue('{ct} outgoing flows'), ylab = '', xaxt = 'n', xlab = '')
     if (ct == tail(cust_st_ord, 1)) {axis(1, at = 1:5, labels = xlabs)}
     title(ylab = 'Relative flow', line = 4, cex.lab = 2)
-    sususu <- sapply(colnames(xi), function(ct) {
+    dummy <- sapply(colnames(xi), function(ct) {
             lines(1:5, xi[,ct], col = color_key$color[color_key$cell_type == ct], lwd = 3)
             points(1:5, xi[,ct], col = color_key$color[color_key$cell_type == ct], pch = 16, cex = 2)
     })
 }
 dev.off()
-
-
-# ## Fig S1H
-# cthpn_vs_cpnl23_genes <- get_genes_specific_to_mcs(legc, mc_pos = which(mcmd$cell_type == 'CthPN'), mc_neg = which(mcmd$cell_type == 'CPN_L2-3'))
-# cthpn_vs_cpnl23_genes_filt <- cthpn_vs_cpnl23_genes[abs(cthpn_vs_cpnl23_genes) >= 2]
-# legcf <- legc[names(cthpn_vs_cpnl23_genes_filt), cust_mc_ord_st[names(cust_mc_ord_st) %in% c('CthPN', 'SCPN', 'CPN_L5_6', 'CPN_L2-3')]]
-# legcf <-legcf - rowMeans(legcf)
-# pcu_legcf <- principal_curve(x = t(legcf))
-
-# p_neuro_markers <- pheatmap::pheatmap(legcf[,pcu_legcf$ord], cluster_cols = F, col = colorRampPalette(c('blue3', 'white', 'red3'))(100), 
-#                     treeheight_row = 0, show_colnames = F, annotation_legend = F,
-#                    breaks = seq(-3,3,l=101), annotation_col = col_annot, annotation_colors = ann_colors, clustering_method = 'ward.D')
-
-
-# save_pheatmap_pdf(p_neuro_markers, fig_s1h_path, h = 3000/71, w = 2000/71)
-
-# ## Fig S1I
-
-# load('./output/metacell_model/pcurve_nsc_vs_mat_neuro.rda')
-
-# mc_no_glia <- as.numeric(mcmd$metacell[!(mcmd$cell_type %in% c('Astrocytes', 'OPCs'))])
-# pcu_ord_filt <- pcu$ord[pcu$ord %in% mc_no_glia]
-
-# # png(fig_s1i_path, h = 650, w = 450)
-# pdf(fig_s1i_path, h = 650/71, w = 450/71)
-# cust_st_ord_filt <- cust_st_ord[!(cust_st_ord  %in% c('Astrocytes', 'OPCs'))]
-# par(las = 2, mar  = c(5,10,1,1), cex.lab = 2, cex.axis = 1.5)
-# # vioplot(rev(1:length(pcu$ord)) ~ factor(mcmd$cell_type[pcu$ord], levels = cust_st_ord), col = col_key[cust_st_ord], horizontal = T, ylab = '',xlab = '')
-# vioplot(rev(sort(pcu_ord_filt)) ~ factor(mcmd$cell_type[pcu_ord_filt], levels = cust_st_ord_filt), 
-#                 col = col_key[cust_st_ord_filt], xaxt = 'n', yaxt = 'n',
-#                 horizontal = T, ylab = '',xlab = '')
-# title(xlab = 'Differentiation order', line =4)
-# title(ylab = 'Cell type', line = 8)
-# ax_lbls <- seq(1, signif(max(rev(pcu_ord_filt)), 1), l = 4)
-# axis(1, at = ax_lbls, labels = ax_lbls)
-# axis(2, at = 1:length(cust_st_ord_filt), labels = cust_st_ord_filt)
-# dev.off()

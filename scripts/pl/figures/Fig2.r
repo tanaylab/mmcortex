@@ -10,7 +10,6 @@ SEED <- 1337
 K <- 16
 set.seed(SEED)
 scfigs_init("figs/")
-# doMC::registerDoMC(60)
 nm <- 'pl_cort'
 mc2d_id <- 'pl_cort_not_cor_cc'
 source('./scripts/util.r')
@@ -124,14 +123,11 @@ p_pltmt_modules <-pheatmap::pheatmap(pltmt_modules, silent = T,
 
 p_pltmt_modules$gtable <- add.flag(pheatmap = p_pltmt_modules, kept.labels = lr, repel.degree = 0)
 
-# mcATAC::save_pheatmap(x = p_pltmt_modules,filename =  './output/metacell_model/nsc_gene_modules/figs/nsc_ipc_astro_stem_modules_phm_flag.png', h = 900, w = 850)
 save_pheatmap_pdf(x = p_pltmt_modules,filename =  fig_2a_path, h = 900, w = 850)
 
 
 ## Fig 2B
 set.seed(1337)
-# mat_ds <- scm_downsamp(mat@mat, 3000)
-# load('./output/metacell_model/mat_ds.rda')
 load('./output/metacell_model/nsc_gene_modules/fig2_data.rda')
 
 
@@ -148,7 +144,6 @@ days <- paste0('E', 13:18)
 mari <- c(5,5,2,2)
 BOXWEX <- 0.6
 LINE <- 5
-# png(fig_2b_path, h = 1100, w = 1200)
 pdf(fig_2b_path, h = 1100/71, w = 1200/71)
 par(mfcol = c(3,3), mar = mari, cex.main = 2, cex.lab = 2, cex.axis = 2, las = 2)
 mari[[2]] <- 7
@@ -196,9 +191,7 @@ fpba <- factor(pba)
 phase_cut_color2 <- factor(setNames(c(colorRampPalette(c('blueviolet', 'orangered'))(4), 'gray')[fpba], names(fpba)))
 
 phase_color_key <- setNames(gplots::col2hex(c(colorRampPalette(c('blueviolet', 'orangered'))(4), 'gray')), levels(fpba))
-phase_color_key
 
-# png('./output/metacell_model/nsc_gene_modules/figs/pc2_vs_pc1_color_phase.png', h = 1200, w = 1350, res = 100)
 pdf(fig_2c_path, h = 12, w = 13.5)
 par(cex.lab = 4, mar = c(8,8,1,1), cex.main = 6, cex.axis = 4)
 plot(cc_mat_rot[,1], cc_mat_rot[,2], col = phase_color_key[fpba[rownames(cc_mat_rot)]], 
@@ -224,7 +217,6 @@ save_pheatmap_pdf(p, filename = fig_2d_path, h = 200/71, w = 250/71)
 
 ## Fig 2E
 
-# png(glue::glue('./output/metacell_model/nsc_gene_modules/figs/phase_probs_by_astro_and_ipc_axes_princurve_bin_barplots.png'), h = 800, w = 700)
 pdf(fig_2e_path, h = 800/71, w = 700/71)
 par(cex.main = 2, cex.axis = 1, cex.lab = 2)
 nf <- graphics::layout(mat = matrix(c(1, 2, 2, 3, 3, 4, 5, 6, 6, 7, 7, 8), nrow = 6, ncol = 2))
@@ -237,12 +229,10 @@ plot(log2((1+mat_phase_by_nsc_ipc_axis['4_M',])/(1+mat_phase_by_nsc_ipc_axis['2_
 lines(c(-10,30), c(0,0), col = 'red', lty = 2, lwd = 2)
 
 # row 2, col 1
-# barplot(mat_phase_norm[c(5,1:4),], col = phase_color_key[c(5,1:4)], ylab = '', main = 's by IPC-NSC princurve bin', add = F, xlab = 'bin')
 barplot(mat_phase_norm[c(5,1:4),], col = phase_color_key[c(5,1:4)], ylab = 'Phase fraction', main = '', add = F, xlab = '')
 legend(x = 16, y = 0.4, col = phase_color_key, legend = gsub('^\\d_', '', names(phase_color_key)), pch = rep(15,5), cex = rep(1.52, 5), bg = 'white')
 
 # row 3, col 1
-# barplot(mat_ct_by_princurve_bin_norm, col = col_key[rownames(mat_ct_by_princurve_bin_norm)], ylab = '', main = 's by IPC-NSC princurve bin', add = F, xlab = 'bin')
 barplot(mat_ct_by_princurve_bin_norm, col = col_key[rownames(mat_ct_by_princurve_bin_norm)], ylab = 'Cell type fraction', main = '', add = F, xlab = '')
 legend(x = 16, y = 0.4, col = col_key[rownames(mat_ct_by_princurve_bin_norm)], legend = rownames(mat_ct_by_princurve_bin_norm), pch = rep(15,3), cex = rep(1.52, 3), bg = 'white')
 
@@ -254,7 +244,6 @@ plot(yh, main = '', ylim = YLIM2, type = 'l', xlab = 'bin', ylab = 'log2 cycling
 lines(c(-10,30), c(0,0), col = 'red', lty = 2, lwd = 2)
 
 # row 1, col 2
-# par(mar = c(4,7,3,2), cex.main = 1, cex.axis = 1)
 par(mar = c(2,3,3,1))
 plot(log2((1+mat_phase_by_nsc_astro_axis['4_M',])/(1+mat_phase_by_nsc_astro_axis['2_S',])), ylim =YLIM,main = 'astro-NSC axis', type= 'l', ylab = 'log2 M/S\nfraction ratio', xlab = 'bin')
 lines(c(-10,30), c(0,0), col = 'red', lty = 2, lwd = 2)
@@ -262,7 +251,6 @@ lines(c(-10,30), c(0,0), col = 'red', lty = 2, lwd = 2)
 # par(mar = c(4,3,3,2))
 # row 2, col 2
 barplot(mat_phase_astro_norm[c(5,1:4),], col = phase_color_key[c(5,1:4)], ylab = 'Phase fraction', main = '', add = F, xlab = 'bin')
-# legend(x = 23,y = 1, legend = names(phase_color_key), col = phase_color_key, pch = 15, cex = 1.5, xpd = T)
 
 # row 3, col 2
 barplot(mat_ct_by_princurve_bin_astro_norm, col = col_key[rownames(mat_ct_by_princurve_bin_astro_norm)], ylab = 'Cell type fraction', main = '', add = F, xlab = 'bin')

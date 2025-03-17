@@ -122,9 +122,6 @@ pdf(fig_3a_path, w = 1500/71, h = 400/71)
 draw(ch2)
 dev.off()
 
-
-# New version - 25/04/24
-
 mtt <- c("JASPAR.EOMES", 
          "JOLMA.MEIS2_mono_DBD_2",
          'JASPAR.NEUROG1',
@@ -142,6 +139,10 @@ mtt <- c("JASPAR.EOMES",
          'JOLMA.ETV1_mono_DBD',
          'JASPAR.NFIB'
         )
+
+# custom order
+mtt <- mtt[c(5,6,16,8,7,3,4,1,2,9,10,12,11,13,14,15)]
+
 
 inds_glia <- which(names(cust_mc_ord_st2) %in% c('OPCs', 'Astrocytes'))
 inds_no_glia <- which(!(names(cust_mc_ord_st2) %in% c('OPCs', 'Astrocytes')))
@@ -178,7 +179,7 @@ colnames(motifs_anno_mat) <- unlist(purrr::map(stringr::str_split(colnames(motif
 colnames(motifs_anno_mat) <- unlist(purrr::map(stringr::str_split(colnames(motifs_anno_mat), '_'), 1))
 mam_lin <- apply(motifs_anno_mat, 2, function(x) {y <- x; y[x < -3] <- -3; y[x > 3] <- 3; return((y + 3)/6)})
 
-motif_ha <- rowAnnotation(`motif\nenrichment` = motifs_anno_mat[,hc_mtt$order], col = list(`motif\nenrichment` = clrmp_rel2),
+motif_ha <- rowAnnotation(`motif\nenrichment` = motifs_anno_mat, col = list(`motif\nenrichment` = clrmp_rel2),
                             width = unit(9, 'cm')
                              )
 
@@ -186,8 +187,6 @@ motif_ha <- rowAnnotation(`motif\nenrichment` = motifs_anno_mat[,hc_mtt$order], 
 
 ch <- ComplexHeatmap::Heatmap(matrix = pltmt[,inds_no_glia] - rowMeans(pltmt), 
                               name = 'log2\nfraction\nATAC\nminus\nmean',
-                              # col = circlize::colorRamp2(breaks =  seq(-16.6,-14,l=5), 
-                              #   colors = c('white', 'orange', 'red', 'purple', 'black')),
                               col = circlize::colorRamp2(breaks =  seq(-2,2,l=3), 
                                 colors = c('blue3', 'white', 'red3')),
                               column_split = factor(names(cust_mc_ord_st2[inds_no_glia]), levels = cust_st_ord2), 
@@ -221,7 +220,6 @@ col_ha1_glia <- HeatmapAnnotation(cell_type = anno_simple(col_annot[cust_mc_ord_
 
 
 ch_glia <- ComplexHeatmap::Heatmap(matrix = pltmt[,inds_glia] - rowMeans(pltmt), 
-                              # col = circlize::colorRamp2(breaks =  seq(-16.6,-14,l=5), colors = c('white', 'orange', 'red', 'purple', 'black')),
                               col = circlize::colorRamp2(breaks =  seq(-2,2,l=3), colors = c('blue3', 'white', 'red3')),
                               column_split = factor(names(cust_mc_ord_st2[inds_glia]), levels = c('OPCs', 'Astrocytes')), column_gap = unit(3, 'mm'),
                               column_title_gp = gpar(fontsize = 20),
@@ -285,11 +283,11 @@ par(mar = c(0.5,MAR_LL,3,1), cex.lab = 1.52, cex.main = 1.5)
 
 ctsi <- c('CthPN', 'SCPN', 'CPN_L2-3', 'CPN_L5_6', 'IPC')
 boxplot(a_legc_avg_ct[pks001,ctsi], col = col_key[ctsi], ylab = '',
-        main = glue::glue('CfuPN-specific peaks, n = {length(pks001)}'), xaxt = 'n', yaxt = 's', ylim = c(-16.6, -14))
+        main = glue::glue('CfuPN-specific CREs, n = {length(pks001)}'), xaxt = 'n', yaxt = 's', ylim = c(-16.6, -14))
 title(ylab = 'Mean accessibility', line = 2)
 par(mar = c(0.5,MAR_LR,3,1))
 boxplot(a_legc_avg_ct[pks010,ctsi], col = col_key[ctsi], 
-                    main = glue::glue('CPN-specific peaks, n = {length(pks010)}'), 
+                    main = glue::glue('CPN-specific CREs, n = {length(pks010)}'), 
                     xaxt = 'n', yaxt = 'n', ylim = c(-16.6, -14), ylab  = '')
 
 par(mar = c(1.5,MAR_LL,1.5,1))
@@ -331,6 +329,7 @@ dev.off()
 mc2d <- scdb_mc2d('pl_cort_not_cor_cc')
 CEX <- 2
 LWD <- 4
+
 ## Reload mcmd because it is different for RNA and ATAC (in ATAC we remove metacells 602,603)
 mcmd <- readr::read_tsv(file.path(wd, 'output/metacell_model/mcmd_pl_cort.tsv'))
 

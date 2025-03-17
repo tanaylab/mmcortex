@@ -88,8 +88,6 @@ fig_1f_path <- glue::glue('./output/paper_figs/Fig1/Fig1F.{device}')
 
 #mc2d
 mc2d_id <- 'pl_cort_not_cor_cc'
-# set_param(param = 'mc_plot_device', value = 'pdf', package = 'metacell')
-# mcell_mc2d_plot(mc2d_id, fig_fn = fig_1a_path, colors = mcmd$color)
 
 min_edge_l <-0
 edge_w <- .31
@@ -116,9 +114,7 @@ dev.off()
 df = data.frame(color_key[order(match(color_key$cell_type, cust_st_ord), decreasing = F),])
 l = nrow(df)
 scale_y = 1
-# png(fig_1a_legend_path, width = 750, height = 2000, res = 250)
-# pdf(fig_1a_legend_path, width = 750/71, height = 2000/71)
-pdf(fig_1a_legend_path, width = 600/71, height = 1200/71)
+pdf(fig_1a_legend_path, width = 600/71, height = 800/71)
 par(mar = c(4,1,4,0), bty = 'n')
 plot(rep(0.9,l), scale_y*seq(l,1,-1), pch = 16, cex = 5, col = df$color, ylim = c(0,scale_y*l+1),
      xlim = c(-1,60),xlab = '', ylab = '',xaxt = 'n',yaxt = 'n')
@@ -127,38 +123,10 @@ dev.off()
 
 
 ## Fig 1B
-# flow monster
 flow_thresh = min(mcf@edge_flows[mcf@edge_flows > 0])
-# mctnetwork_plot_net_YSh(nm, nm, flow_thresh = flow_thresh, plot_pdf = T,  
-#         fn = fig_1b_path,
-#          mc_ord=cust_mc_ord_st)
-
 set_param(param = 'mc_plot_device', value = 'pdf', package = 'metacell')
-# mctnetwork_plot_net_YSh(nm, nm, plot_pdf = TRUE, fn = glue::glue('./output/metacell_flow/figs/{nm}_flow_monster_plot.pdf'), 
 mctnetwork_plot_net_YSh(nm, nm, plot_pdf = TRUE, h = 32, w = 24, fn = fig_1b_path, 
         mc_ord = cust_mc_ord_st, flow_thresh = flow_thresh)
-
-
-
-
-# mc2d
-# set_param(param = 'mc_plot_device', value = 'pdf', package = 'metacell')
-# mcell_mc2d_plot(mc2d_id = mc2d_id, colors = md_clvls, fig_fn = fig_1c_path)
-
-# pdf(fig_1c_path, h = 1500/71, w = 1500/71)
-# plot(mc2d@sc_x, mc2d@sc_y, col = md_clvls[mc@mc[names(mc2d@sc_x)]], pch = 16, cex = 1, bty = 'n', xlab = '', ylab = '', xaxt = 'n', yaxt = 'n')
-# # fr = mc2d@graph$mc1
-# # to = mc2d@graph$mc2
-# # dx = mc2d@mc_x[fr]-mc2d@mc_x[to]
-# # dy = mc2d@mc_y[fr]-mc2d@mc_y[to]
-# # f = sqrt(dx*dx+dy*dy) > 0
-# # segments(mc2d@mc_x[fr], mc2d@mc_y[fr], mc2d@mc_x[to], mc2d@mc_y[to], 
-# #                         lwd=ifelse(f, 1, 0))
-# points(mc2d@mc_x, mc2d@mc_y, col = md_clvls, pch = 16, cex = 3, bty = 'n', xlab = '', ylab = '', xaxt = 'n', yaxt = 'n')
-# points(mc2d@mc_x, mc2d@mc_y, cex = 3)
-# text(mc2d@mc_x, mc2d@mc_y, 1:length(mc2d@mc_x), cex=1)
-# dev.off()
-
 
 ## Fig 1C
 
@@ -188,7 +156,9 @@ dev.off()
 ## Fig 1D legend
 min_val = min(mc_cc$cc_score)
 max_val = max(mc_cc$cc_score)
-plot_color_bar(seq(min_val-1, max_val,l=101), shades, height = 400/71, width = 400/71, device = pdf, fig_fn = fig_1d_color_bar_path)
+plot_color_bar(seq(min_val-1, max_val,l=101), shades, 
+                        height = 400/71, width = 400/71, device = pdf, 
+                        fig_fn = fig_1d_color_bar_path)
 
 
 ## Fig 1E
@@ -217,7 +187,6 @@ ch <- Heatmap(pltmt, name = "marker\nheatmap",
                         cluster_columns = F, cluster_rows = F
                         )
 
-# png(fig_1e_path, w = 2400, h =1200, res = 200)
 pdf(fig_1e_path, w = 1000/71, h = 600/71)
 draw(ch)
 dev.off()
@@ -240,7 +209,7 @@ plot(1:5, nsc_flow_out_n[,ct], col = color_key$color[color_key$cell_type == ct],
       ylab = '', xaxt = 'n', xlab = '')
 axis(1, at = 1:5, labels = xlabs)
 title(ylab = 'Relative flow', line = 4, cex.lab = 2)
-sususu <- sapply(colnames(nsc_flow_out_n), function(ct) {
+dummy <- sapply(colnames(nsc_flow_out_n), function(ct) {
         lines(1:5, nsc_flow_out_n[,ct], col = color_key$color[color_key$cell_type == ct], lwd = 3)
         points(1:5, nsc_flow_out_n[,ct], col = color_key$color[color_key$cell_type == ct], pch = 16, cex = 2)
 })
