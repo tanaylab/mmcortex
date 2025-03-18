@@ -22,7 +22,6 @@ load(file = file.path(wd, 'output/methylation/avg_meth_all.rda'))
 load(file = file.path(wd, 'output/hic/fig5_data.rda'))
 
 mcmd <- readr::read_tsv(file.path(wd, 'output/metacell_model/mcmd_pl_cort.tsv'))
-# mcmd <- mcmd[-c(602:603),]
 
 color_key <- unique(mcmd[,c('cell_type', 'color')])
 col_key <- tibble::deframe(color_key)

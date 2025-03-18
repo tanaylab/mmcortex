@@ -54,7 +54,6 @@ fig_s3g_path <- glue::glue(file.path(wd, 'output/paper_figs/FigS3/FigS3G.{device
 fig_s3h_path <- glue::glue(file.path(wd, 'output/paper_figs/FigS3/FigS3H.{device}'))
 
 pdf(fig_s3a_path, h = 500/71, w = 500/71)
-# png('./output/mcatac/figs/total_frags_per_cells_per_sample.png', h = 500, w = 500)
 par(las = 2, mar = c(7, 7, 2,1))
 boxplot(total_frags_per_cells ~ mca@cell_to_metacell$sample_name[match(names(total_frags_per_cells), mca@cell_to_metacell$cell_id)],
                ylab = '', xlab = '')
@@ -63,7 +62,6 @@ title(ylab = 'Fragments per cell', line = 5)
 dev.off()
 
 pdf(fig_s3b_path, h = 500/71, w = 500/71)
-# png('./output/mcatac/figs/fragments_in_peaks_per_cell_per_sample.png', h = 500, w = 500)
 par(las = 2, mar = c(7, 5, 2,1))
 boxplot(frags_in_peaks_per_cells/total_frags_per_cells ~ mca@cell_to_metacell$sample_name[match(names(total_frags_per_cells), mca@cell_to_metacell$cell_id)],
                ylab = '', xlab = '')
@@ -73,14 +71,12 @@ dev.off()
 
 
 pdf(fig_s3c_path, h = 400/71, w = 400/71)
-# png('./output/mcatac/figs/tss_enrichment_score.png', h = 400, w = 400)
 plot(as.numeric(names(fc_vec)), fc_vec, ylab = 'TSS enrichment score', xlab = 'Distance from TSS')
 lines(c(-1000,1000), rep(1,2), lwd = 2, lty = 2, col = 'red')
 dev.off()
 
 
 ## Fig S3D
-# mat_feat_prom_amc <- do.call('cbind', lapply(day_mcls, function(x) x[[2]][feats,]))
 
 load(file.path(wd, 'output/mcatac/mat_feat_prom_amc.rda'))
 marks <- names(scdb_gset('pl_cort_marks')@gene_set)
@@ -91,7 +87,6 @@ pp <- pheatmap::pheatmap(pltmt[hc_pltmt$order,], cluster_rows = F,
             labels_row = ifelse(rownames(pltmt[hc_pltmt$order,]) %in% marks, rownames(pltmt[hc_pltmt$order,]) ,''), 
             show_colnames=F, treeheight_col = 0, treeheight_row = 0,fontsize = 12, clustering_method = 'ward.D',
             col = colorRampPalette(c('blue3', 'white', 'red3'))(100), breaks = seq(-0.5,0.5,l=101))
-# save_pheatmap_png(pp, './output/mcatac/figs/atac_cortex_matching_promoter_activity.png', h = 3200, w = 1600)
 
 lr <- ifelse(rownames(pltmt) %in% marks, rownames(pltmt), '')
 
@@ -107,7 +102,6 @@ pp2 <- pheatmap::pheatmap(pltmt2[,cust_mc_ord_st], cluster_rows = F, cluster_col
     annotation_col = col_annot, annotation_colors = ann_colors, labels_row = ifelse(ord_pp %in% marks, ord_pp ,''),
     show_colnames=F, treeheight_col = 0, treeheight_row = 0,fontsize = 12, clustering_method = 'ward.D',
     col = colorRampPalette(c('blue3', 'white', 'red3'))(100), breaks = seq(-3,3,l=101))
-# save_pheatmap_png(pp2, './output/mcatac/figs/atac_cortex_matching_rna_feature_activity.png', h = 3200, w = 2000)
 
 lr <- ifelse(rownames(pltmt2) %in% marks, rownames(pltmt2), '')
 
@@ -118,7 +112,6 @@ save_pheatmap_pdf(pp2, fig_s3e_path, h = 800/71, w = 400/71)
 
 
 ## Fig S3F
-# png('./output/mcatac/figs/tss-proximal_peak_variance_densities.png')
 pdf(fig_s3f_path)
 par(cex.lab = 2, mar = c(5,5,2,1), cex.main = 2, cex.axis = 2)
 BW <- 0.1
@@ -222,7 +215,6 @@ nsc_early <- as.character(mcmd$metacell[mcmd$cell_type == 'NSC' & mcmd$mean_day 
 
 
 pdf(fig_s3h_path, h = 500/71, w = 1000/71)
-# png('./output/mcatac/figs/astro_and_early_nsc_vs_late_nsc_atac.png', h = 500, w = 1000)
 par(mfrow = c(1,2), cex.lab = 1.52, cex.main = 1.5)
 plot(rowMeans(a_legc[rownames(a_legc_avg_ct),nsc_late]), a_legc_avg_ct[,'Astrocytes'], pch = 16, cex = .15, xlab = 'NSC (mean day > 16.5) ATAC', ylab = 'Astrocytes ATAC', main = 'Astro vs late NSC - ATAC')
 abline(a =-1,b = 1,col='red', lty=  2, lwd=  1)

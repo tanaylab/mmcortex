@@ -133,7 +133,6 @@ mctnetwork_plot_net_YSh(nm, nm, plot_pdf = TRUE, h = 32, w = 24, fn = fig_1b_pat
 
 md_clvls <- clrmp[1+round(999*(mcmd$mean_day-13)/(18-13))]
 days <- paste0('E', 13:18)
-# png(fig_1c_legend_path, h = 1500, w = 1500, res = 100)
 pdf(fig_1c_path, h = 1500/71, w = 1500/71)
 par(cex.main = 6, cex.lab = 2, mar = c(5,5,4,3))
 plot(mc2d@sc_x, mc2d@sc_y, pch = 16, col = md_clvls[mc@mc[names(mc2d@sc_x)]], 
@@ -199,13 +198,11 @@ aa <- paste0('E', 13:17)
 bb <- paste0('E', 14:18)
 xlabs <- apply(cbind(aa, rep('->', length(aa)), bb), 1, paste, collapse = ' ')
 
-# png(fig_1f_path, h = 800, w = 800, res = 100)
 pdf(fig_1f_path, h = 550/71, w = 550/71)
 par(las = 2, mar = c(12,8,1,1), cex.main = 2, cex.axis = 2, cex.lab = 1.5)
 ct <- 'NSC'
 plot(1:5, nsc_flow_out_n[,ct], col = color_key$color[color_key$cell_type == ct], 
      type = 'l', ylim = c(0,max(nsc_flow_out_n)), lwd = 3, 
-#      main = 'Target types of flows outgoing from NSCs',
       ylab = '', xaxt = 'n', xlab = '')
 axis(1, at = 1:5, labels = xlabs)
 title(ylab = 'Relative flow', line = 4, cex.lab = 2)

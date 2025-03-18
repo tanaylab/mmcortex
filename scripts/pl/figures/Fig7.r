@@ -139,9 +139,7 @@ vvv <- sapply(grep('e13', colnames(pltmt_nsc_norm), ign = T, inv = T, v=T), func
     else {par(mar = c(marb,3,mart,marr), cex.axis = 2)}
         boxplot_vec(xvec = pred01[names_nc], yvec = pltmt_nsc_norm[names_nc,cni], 
         col = col_key[['NSC']], nm = '',
-                #     nm = gsub('_mad.score', '', cni), 
                     bins = bins_en, 
-                #     ylab = '', ylim = c(-0.2,4.95), xlim = c(3.5,13), 
                 ylab = '', ylim = c(-1,2), xlim = c(3.5,13), 
                     text_y_factor = 1., text_cex = 2, xaxt = 's', show_text = F)
     grid(lwd = 2, col = 'lightblue', lty = 2)
