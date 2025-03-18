@@ -133,9 +133,9 @@ load('./output/metacell_model/nsc_gene_modules/fig2_data.rda')
 
 
 nsc_sc <- intersect(names(mc@mc[mc@mc %in% which(mcmd$cell_type == 'NSC')]), colnames(mat_ds))
-ipc_sc <- colSums(mat_ds[ipc_module,])
-astro_sc <- colSums(mat_ds[astro_module,])
-stem_sc <- colSums(mat_ds[stem_module,])
+ipc_sc <- Matrix::colSums(mat_ds[ipc_module,])
+astro_sc <- Matrix::colSums(mat_ds[astro_module,])
+stem_sc <- Matrix::colSums(mat_ds[stem_module,])
 ipc_sc_names <- names(mc@mc)[mc@mc %in% which(mcmd$cell_type %in% c('IPC'))]
 astro_sc_names <- names(mc@mc[mc@mc %in% which(mcmd$cell_type == 'Astrocytes')])
 days <- paste0('E', 13:18)
@@ -149,7 +149,8 @@ par(mfcol = c(3,3), mar = mari, cex.main = 2, cex.lab = 2, cex.axis = 2, las = 2
 mari[[2]] <- 7
 mari[[3]] <- 5
 par(mar = mari)
-boxplot(ipc_sc[nsc_sc] ~ setNames(mat@cell_metadata[nsc_sc,'day'], nsc_sc), boxwex = BOXWEX, xaxt = 'n',ylim = c(0,quantile(ipc_sc[c(ipc_sc_names, nsc_sc, astro_sc_names)], 0.99, na.rm = T)), ylab = '', main = 'NSCs', xlab = '', col = col_key[['NSC']])
+boxplot(ipc_sc[nsc_sc] ~ setNames(mat@cell_metadata[nsc_sc,'day'], nsc_sc), boxwex = BOXWEX, xaxt = 'n',
+            ylim = c(0,quantile(ipc_sc[c(ipc_sc_names, nsc_sc, astro_sc_names)], 0.99, na.rm = T)), ylab = '', main = 'NSCs', xlab = '', col = col_key[['NSC']])
 title(ylab = "IPC module (ds UMIs)", line = LINE)
 axis(1, at = 1:6, labels = days)
 mari[[3]] <- 2

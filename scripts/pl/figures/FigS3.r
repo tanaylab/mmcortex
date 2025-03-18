@@ -128,13 +128,13 @@ d3 <- density(prom_sds[proms_hi_var_ipc]**2, bw = BW)
 d4 <- density(prom_sds[proms_hi_var_stem]**2, bw = BW)
 d5 <- density(prom_sds[setdiff(proms_hi_var_marks, unique(unlist(c(proms_hi_var_astro, proms_hi_var_ipc, proms_hi_var_stem))))]**2, bw = BW)
 plot(d1$x, d1$y, col = 'black', type = 'l', lwd = 2, lty = 2, xlab = 'ATAC variance across metacells', ylab = glue::glue('Density, BW = {BW}'), 
-     main = 'TSS-proximal peak ATAC variance'
+     main = 'TSS ATAC variance'
     )
 lines(d2$x, d2$y, col = col_key[['Astrocytes']], lwd = 3, lty = 2)
 lines(d3$x, d3$y, col = col_key[['IPC']], lwd = 3, lty = 2)
 lines(d4$x, d4$y, col = col_key[['NSC']], lwd = 3, lty = 2)
 lines(d5$x, d5$y, col = 'darkorange', lwd = 3, lty = 2)
-legend('topright', legend = c('All TSS-proximal CREs', 'Near astro module TSSs', 'Near IPC module TSSs', 'Near stem module TSSs', 'Near marker gene TSSs'),
+legend('topright', legend = c('All TSSs', 'Astro module TSSs', 'IPC module TSSs', 'Stem module TSSs', 'Marker gene TSSs'),
        col = c('black', col_key[c('Astrocytes', 'IPC', 'NSC')], 'darkorange'), lty = rep(2,5), lwd = rep(2,5), cex = 1)
 dev.off()
 

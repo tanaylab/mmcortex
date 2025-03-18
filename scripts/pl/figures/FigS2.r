@@ -87,26 +87,30 @@ stem_module <- readLines('./output/metacell_model/nsc_gene_modules/stem_module.t
 load('./output/metacell_model/nsc_gene_modules/figs2_data.rda')
 load('./output/metacell_model/nsc_gene_modules/phase_info.rda')
 
-## Supp table 1
-temp_genes_sort <- unlist(sapply(c(4,5,2,8), function(gi) {
-    names(ct_hc_cor_nsc[ct_hc_cor_nsc == gi])
-}))
-legc_temp <- legc_by_day_n[temp_genes_sort,]
-
-
-
 ## Fig S2A
 st_legc <- as.data.frame(t(tgs_matrix_tapply(legc, mcmd$cell_type, mean)))
 
 
-cluster_names <- setNames(gsub(' ', '\n', c('Cell cycle 1', 
+cluster_names <- setNames(c('Cell cycle 1', 
                             'Temp. decreasing 1', 
                             'Cell cycle 2',
                             'Temp. increasing 1',
                             'Temp. increasing 2',
                             'Cell cycle 3',
                             'Cell cycle 4',
-                            'Temp. decreasing 2')), sort(unique(ct_hc_cor_nsc)))
+                            'Temp. decreasing 2'), sort(unique(ct_hc_cor_nsc)))
+
+## Gene module table for MCV and supp table 1
+all_genes_in_modules <- multunion(names(ct_hc_cor_nsc), astro_module, ipc_module, stem_module)
+gene_module_table <- tibble::enframe(ct_hc_cor_nsc, name = 'gene', value = 'nsc_gene_module') 
+gene_module_table$nsc_gene_module_name <- cluster_names[gene_module_table$nsc_gene_module]
+gene_module_table[,c('IPC', 'astro', 'stem')] <- cbind(ifelse(gene_module_table$gene %in% ipc_module, TRUE, FALSE), 
+                                                        ifelse(gene_module_table$gene %in% astro_module, TRUE, FALSE), 
+                                                        ifelse(gene_module_table$gene %in% stem_module, TRUE, FALSE))
+gene_module_table[,colnames(legc_by_day_n)] <- legc_by_day_n[gene_module_table$gene,]
+gene_module_table <- gene_module_table %>% dplyr::arrange(nsc_gene_module_name, gene)
+
+readr::write_tsv(gene_module_table, './output/metacell_model/nsc_gene_modules/supp_table_1_nsc_gene_modules.tsv')
 
 
 pdf(fig_s2a_path, h = 500/71, w = 1000/71)
@@ -133,13 +137,16 @@ vvv <- lapply(sort(cluster_names), function(cnj) {
     }
     par(mar = mari)
     boxplot(st_legc[gnj,cust_st_ord2], col = col_key[cust_st_ord2], 
-            main = gsub('\n', ' ', cluster_names[[clj]]), 
+            main = cluster_names[[clj]], 
             ylab = '',
             xaxt = xaxti,
             ylim = quantile(unlist(st_legc[gnj,cust_st_ord2]), c(0.1,0.96)))
     title(ylab = 'Mean RNA', line = 4)
 })
 dev.off()
+
+cluster_names <- setNames(gsub(' ', '\n', cluster_names), names(cluster_names))
+
 
 ## Fig S2B
 ct_hc_cor_nsc_h <- setNames(cluster_names[ct_hc_cor_nsc], names(ct_hc_cor_nsc))

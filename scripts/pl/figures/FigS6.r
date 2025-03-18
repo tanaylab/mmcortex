@@ -41,6 +41,23 @@ ggplot2::ggsave(file = fig_s6a_path,
 
 
 ## Fig S6B
+pdf(fig_s6b_path, 
+        h = 500/71, w = 500/71)
+plot(delta_els[setdiff(names(pred_score_new), rownames(x_all))], 
+        pred_score_new[setdiff(names(pred_score_new), rownames(x_all))],
+        pch = 1, cex = 0.42, col = adjustcolor('black', alpha.f = 0.65), 
+        main = 'IPC - NSC accessibility', xlab = 'Observed', ylab = 'Predicted')
+points(delta_els[intersect(names(pred_score_new), rownames(x_all))], 
+        pred_score_new[intersect(names(pred_score_new), rownames(x_all))], 
+        pch = 1, cex = 0.42, col = adjustcolor('red', alpha.f = 0.25))
+abline(0,1,col = 'green', lty = 2, lwd = 3)
+legend('bottomright', legend = c('ENCODE SCREEN pELS/dELS', 'Cortex CREs'), 
+        pch = 1, col = c('black', 'red'), cex = 1, pt.cex = 0.42, bg = 'white')
+dev.off()
+
+
+
+## Fig S6C
 
 delta_atac_inc_peaks <- names(delta_ipc_nsc[delta_ipc_nsc > 0])
 delta_atac_dec_peaks <- names(delta_ipc_nsc[delta_ipc_nsc <= 0])
@@ -120,19 +137,19 @@ dev.off()
 
 ## Fig S6C
 
-pb <- multintersect(names(atac_diff_vec), names(delta_ipc_nsc), rownames(x_all))
-pdf(fig_s6c_path, h = 500/71, w = 600/71)
-par(las = 2, mar = c(13, 5, 3,1), cex.lab = 1.5)
-boxplot_vec(xvec = atac_diff_vec[pb], yvec = delta_ipc_nsc[pb], 
-        nm = 'Delta ATAC vs delta proximal ATAC', num_bins = 11, ylab = 'Delta ATAC')
-title(xlab = 'Delta proximal IPC-NSC ATAC UMIs (50kbp)', line = 11)
-text(1.5, 2, labels = paste0('cor = ', 
-                            signif(cor(atac_diff_vec[pb], 
-                                    delta_ipc_nsc[pb], 
-                                    method = 'spearman', 
-                                    use = 'pairwise.complete.obs'), 2)), 
-                                    cex = 1.5)
-dev.off()
+# pb <- multintersect(names(atac_diff_vec), names(delta_ipc_nsc), rownames(x_all))
+# pdf(fig_s6c_path, h = 500/71, w = 600/71)
+# par(las = 2, mar = c(13, 5, 3,1), cex.lab = 1.5)
+# boxplot_vec(xvec = atac_diff_vec[pb], yvec = delta_ipc_nsc[pb], 
+#         nm = 'Delta ATAC vs delta proximal ATAC', num_bins = 11, ylab = 'Delta ATAC')
+# title(xlab = 'Delta proximal IPC-NSC ATAC UMIs (50kbp)', line = 11)
+# text(1.5, 2, labels = paste0('cor = ', 
+#                             signif(cor(atac_diff_vec[pb], 
+#                                     delta_ipc_nsc[pb], 
+#                                     method = 'spearman', 
+#                                     use = 'pairwise.complete.obs'), 2)), 
+#                                     cex = 1.5)
+# dev.off()
 
 
 ## Fig S6D
@@ -148,23 +165,12 @@ dev.off()
 ## Fig S6E
 
 
-pdf(file.path(wd, 'output/sequence_modeling/figs/xgboost_predicted_vs_observed_ENCODE_dELS_pELS_mmcortex.pdf'), 
-        h = 500/71, w = 500/71)
-plot(delta_els[setdiff(names(pred_score_new), rownames(x_all))], 
-        pred_score_new[setdiff(names(pred_score_new), rownames(x_all))],
-        pch = 1, cex = 0.42, col = adjustcolor('black', alpha.f = 0.65), 
-        main = 'IPC - NSC accessibility', xlab = 'Observed', ylab = 'Predicted')
-points(delta_els[intersect(names(pred_score_new), rownames(x_all))], 
-        pred_score_new[intersect(names(pred_score_new), rownames(x_all))], 
-        pch = 1, cex = 0.42, col = adjustcolor('red', alpha.f = 0.25))
-abline(0,1,col = 'green', lty = 2, lwd = 3)
-legend('bottomright', legend = c('ENCODE SCREEN pELS/dELS', 'Cortex CREs'), 
-        pch = 1, col = c('black', 'red'), cex = 1, pt.cex = 0.42, bg = 'white')
-dev.off()
+# pdf(file.path(wd, 'output/sequence_modeling/figs/xgboost_predicted_vs_observed_ENCODE_dELS_pELS_mmcortex.pdf'), 
 
-## Fig S6F
+## Fig S6E
 
-pdf(file.path(wd, 'output/sequence_modeling/figs/model_r2_vs_prox_d.pdf'), h = 250/71, w = 250/71)
+# pdf(file.path(wd, 'output/sequence_modeling/figs/model_r2_vs_prox_d.pdf'), h = 250/71, w = 250/71)
+pdf(fig_s6e_path, h = 250/71, w = 250/71)
 par(las = 2, mar = c(6,6,2,1))
 barplot(unlist(r2_add), xlab = '', ylab = '')
 title(xlab = 'Neighbor counting radius [bp]', line = 4)

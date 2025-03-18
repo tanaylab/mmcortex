@@ -8,7 +8,8 @@ file.remove("mmcortex.tar.gz")
 
 folder_names <- c('figs', 
                   'scripts', 
-                  'output', 
+                  'scripts/pl', 
+		  'output', 
                   'output/metacell_model', 
                   'output/metacell_flow', 
                   'output/mcatac',

@@ -46,7 +46,7 @@ plot(v1$x, v1$y/sum(v1$y), type = 'l', lwd = 2, col = 'orange', xlab = 'Mean NSC
 grid(lwd = 2, lty = 2)
 lines(v21$x, v21$y/sum(v21$y), type = 'l', lwd = 2, col = 'green')
 lines(v31$x, v31$y/sum(v31$y), type = 'l', lwd = 2, col = 'blue')
-legend('topright', legend = c('TSS-proximal CREs', 'TSS-distal constitutive CREs', 'TSS-distal variable CREs'), 
+legend('topright', legend = c('TSSs', 'Constitutive CREs', 'Variable CREs'), 
        col = c('orange', 'blue', 'green'),
        cex = 1.5, lwd = rep(2,3), lty = rep(1,3))
 dev.off()
@@ -57,11 +57,11 @@ pdf(fig_s4b_path, h=  400/71, w = 900/71)
 par(cex.main = 2, mfrow = c(1,2), cex.lab = 2, mar = c(5,5,4,1), cex.axis =1.5)
 hist(avg_meth_all[dist_peaks_acc,'E17'] - avg_meth_all[dist_peaks_acc,'E13'], 50,
      xlim = c(-1,1),
-     xlab = 'E17 - E13 methylation', ylab = 'Count', main = 'E17 - E13 methylation\nin TSS-distal CREs')
+     xlab = 'E17 - E13 methylation', ylab = 'Count', main = 'E17 - E13 methylation\nin TSSs')
 grid(lwd = 2, lty = 2)
 hist(avg_meth_all[prom_peaks_acc,'E17'] - avg_meth_all[prom_peaks_acc,'E13'], 50,
      xlim = c(-1,1),
-     xlab = 'E17 - E13 methylation', ylab = 'Count', main = 'E17 - E13 methylation\nin TSS-proximal CREs')
+     xlab = 'E17 - E13 methylation', ylab = 'Count', main = 'E17 - E13 methylation\nin CREs')
 grid(lwd = 2, lty = 2)
 dev.off()
 
@@ -77,12 +77,12 @@ cor2 <- cor(x2, y2, method = 'spearman', use = 'pairwise.complete.obs')
 
 pdf(fig_s4c_path, h = 400/71, w = 800/71)
 par(mfrow = c(1,2), mar = c(5,5,3,1), cex.main = 2, cex.lab = 2, cex.axis = 1.5)
-plot(x1, y1, pch =16, cex = 0.1, main = 'TSS-proximal CREs', ylab = 'Mean NSC methylation', xlab = 'Mean NSC accessibility', 
+plot(x1, y1, pch =16, cex = 0.1, main = 'TSSs', ylab = 'Mean NSC methylation', xlab = 'Mean NSC accessibility', 
      ylim = c(0,1), xlim = c(-16.6, -13.5)
     )
 text(-15, 0.8, labels = glue::glue('Spearman = {round(cor1, 2)}'), adj = c(0,1), cex = 1.5)
 par(mar = c(5,2,3,1), cex.main = 2, cex.lab = 2, cex.axis = 1.5)
-plot(x2, y2, pch =16, cex = 0.1, main = 'TSS-distal CREs', ylab = '', xlab = 'Mean NSC accessibility', 
+plot(x2, y2, pch =16, cex = 0.1, main = 'CREs', ylab = '', xlab = 'Mean NSC accessibility', 
      ylim = c(0,1), xlim = c(-16.6, -13.5)
     )
 text(-15, 0.8, labels = glue::glue('Spearman = {round(cor2, 2)}'), adj = c(0,1),cex = 1.5)
@@ -94,8 +94,7 @@ cells_h <- as.character(mcmd$metacell[which(mcmd$cell_type == 'NSC')])
 lm_and_plot <- function(x, y, xlab = NULL, ylab = NULL, main = NULL) {
     lm1 <- lm(y ~ x)
     plot(x,y, xlab = xlab, ylab = ylab, 
-                main = glue::glue("cor = {round(cor(x,y,method = 'pearson'), 3)}, 
-                                    pval = {round(cor.test(x,y,method ='pearson')$p.value, 3)}"))
+                main = glue::glue("cor = {round(cor(x,y,method = 'pearson'), 3)}, pval = {round(cor.test(x,y,method ='pearson')$p.value, 3)}"))
 #     abline(lm1$coefficients[[1]], lm1$coefficients[[2]], col= 'red', lty =2)
 }
 
