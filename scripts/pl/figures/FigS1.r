@@ -1,10 +1,12 @@
 ## Boilerplate
 ## Start
 library(metacell)
-devtools::load_all("~/src/metacell.flow")
+# devtools::load_all("~/src/metacell.flow")
+library(metacell.flow)
 library(princurve)
 library(vioplot)
-wd = '/net/mraid20/export/tgdata/users/yonshap/proj/mmcortex'
+# wd = '/net/mraid20/export/tgdata/users/yonshap/proj/mmcortex'
+wd <- '.'
 set.seed(1337)
 
 db_path = file.path(wd, 'scdb')

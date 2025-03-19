@@ -1,6 +1,7 @@
 library(gridExtra)
 
-wd <- '/net/mraid20/export/tgdata/users/yonshap/proj/mmcortex/'
+# wd <- '/net/mraid20/export/tgdata/users/yonshap/proj/mmcortex/'
+wd <- '.'
 setwd(wd)
 library(misha)
 gsetroot('/home/aviezerl/mm10')

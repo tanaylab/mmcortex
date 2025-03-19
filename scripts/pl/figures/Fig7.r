@@ -1,6 +1,7 @@
 
-wd <- '/net/mraid20/export/tgdata/users/yonshap/proj/mmcortex/'
-setwd(wd)
+# wd <- '/net/mraid20/export/tgdata/users/yonshap/proj/mmcortex/'
+wd <- '.'
+# setwd(wd)
 library(misha)
 library(tgstat)
 gsetroot('/home/aviezerl/mm10')

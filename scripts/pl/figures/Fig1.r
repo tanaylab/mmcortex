@@ -1,5 +1,6 @@
 library(metacell)
-devtools::load_all('~/src/metacell.flow')
+# devtools::load_all('~/src/metacell.flow')
+library(metacell.flow)
 library(ComplexHeatmap)
 
 wd = '/home/feshap/raid/proj/mmcortex'

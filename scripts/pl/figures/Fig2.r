@@ -1,8 +1,10 @@
 library(metacell)
-devtools::load_all('~/src/metacell.flow')
+# devtools::load_all('~/src/metacell.flow')
+library(metacell.flow)
 library(ComplexHeatmap)
 
-wd <- '/home/feshap/raid/proj/mmcortex'
+# wd <- '/home/feshap/raid/proj/mmcortex'
+wd <- '.'
 db_path <- file.path(wd, 'scdb')
 scdb_init(db_path, force_reinit = T)
 scdb_flow_init()

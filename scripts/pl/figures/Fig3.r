@@ -6,10 +6,13 @@ library(ComplexHeatmap)
 # library(mcATAC)
 library(tgstat)
 library(plyr)
-devtools::load_all("/home/feshap/src/mcATAC")
-devtools::load_all('~/src/iceqream/')
+# devtools::load_all("/home/feshap/src/mcATAC")
+# devtools::load_all('~/src/iceqream/')
+library(iceqream)
+library(mcATAC)
 
-wd <- '/net//mraid20//export/tgdata/users/yonshap/proj/mmcortex/'
+# wd <- '/net//mraid20//export/tgdata/users/yonshap/proj/mmcortex/'
+wd <- '.'
 setwd(wd)
 gsetroot('/home/aviezerl/mm10')
 scdb_init(file.path(wd, 'scdb'), f=T)
