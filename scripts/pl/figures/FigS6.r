@@ -3,8 +3,6 @@ library(gridExtra)
 # wd <- '/net/mraid20/export/tgdata/users/yonshap/proj/mmcortex/'
 wd <- '.'
 setwd(wd)
-library(misha)
-gsetroot('/home/aviezerl/mm10')
 source(file.path(wd, 'scripts/util.r'))
 
 load(file = './output/sequence_modeling/fig_s6_data.rda')
@@ -16,6 +14,7 @@ fig_s6a_path <- file.path(wd, glue::glue('./output/paper_figs/FigS6/FigS6A.{devi
 fig_s6b_path <- file.path(wd, glue::glue('./output/paper_figs/FigS6/FigS6B.{device}'))
 fig_s6c_path <- file.path(wd, glue::glue('./output/paper_figs/FigS6/FigS6C.{device}'))
 fig_s6d_path <- file.path(wd, glue::glue('./output/paper_figs/FigS6/FigS6D.{device}'))
+fig_s6e_path <- file.path(wd, glue::glue('./output/paper_figs/FigS6/FigS6E.{device}'))
 # fig_6def_path <- file.path(wd, glue::glue('./output/paper_figs/FigS6/FigS6DEF.{device}'))
 
 

@@ -94,8 +94,8 @@ min_edge_l <-0
 edge_w <- .31
 short_edge_w <-0
 
-mcp_2d_cex <- get_param(param = "mcell_mc2d_cex", package = 'metacell')
-sc_cex <- get_param(param = "sc_cex", package = 'metacell')
+mcp_2d_cex <- tgconfig::get_param(param = "mcell_mc2d_cex", package = 'metacell')
+sc_cex <- tgconfig::get_param(param = "sc_cex", package = 'metacell')
 pdf(fig_1a_path, h = 1500/71, w = 1500/71)
 plot(mc2d@sc_x, mc2d@sc_y, pch=19, col=mcmd$color[mc@mc[names(mc2d@sc_x)]], 
         cex=sc_cex, bty = 'n', xlab = '', ylab = '', xaxt = 'n', yaxt = 'n')
@@ -125,7 +125,7 @@ dev.off()
 
 ## Fig 1B
 flow_thresh = min(mcf@edge_flows[mcf@edge_flows > 0])
-set_param(param = 'mc_plot_device', value = 'pdf', package = 'metacell')
+tgconfig::set_param(param = 'mc_plot_device', value = 'pdf', package = 'metacell')
 mctnetwork_plot_net_YSh(nm, nm, plot_pdf = TRUE, h = 32, w = 24, fn = fig_1b_path, 
         mc_ord = cust_mc_ord_st, flow_thresh = flow_thresh)
 
@@ -193,7 +193,7 @@ dev.off()
 
 ## Fig 1F
 
-nsc_flow_out <- do.call('rbind', lapply(mcf@mc_forward, function(x) rowSums(tgs_matrix_tapply(x[which(mcmd$cell_type == 'NSC'),], mcmd$cell_type, sum))/sum(colSums(x))))
+nsc_flow_out <- do.call('rbind', lapply(mcf@mc_forward, function(x) rowSums(tgstat::tgs_matrix_tapply(x[which(mcmd$cell_type == 'NSC'),], mcmd$cell_type, sum))/sum(colSums(x))))
 nsc_flow_out_n <- nsc_flow_out/rowSums(nsc_flow_out)
 aa <- paste0('E', 13:17)
 bb <- paste0('E', 14:18)

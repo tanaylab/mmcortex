@@ -931,14 +931,15 @@ intervals.2d.expand <- function(inv,expansion1, expansion2){
 }
 
 plotGeneTrack <- function(genome,interv,gene_size=0.7,fontsize=20,collapseTranscripts='meta',targetGene='') {
-  gene_track=Gviz::UcscTrack(genome="mm10", track="NCBI RefSeq", table="refGene",           #For Human refGene
+  gene_track=Gviz::UcscTrack(genome=genome, track="NCBI RefSeq", 
+                            # table="refGene",           #For Human refGene
                             trackType="GeneRegionTrack",chromosome=as.character(interv[1]),
                             rstart="exonStarts", rends="exonEnds", gene="name2", symbol="name2",
                             transcript="name2", strand="strand", name="RefSeq Genes",
                             feature="name2", stacking='squish',
                             showId=T, from=as.numeric(interv[2])-1e4, to=as.numeric(interv[3])+1e4)
  # displayPars(gene_track) <- list(size=gene_size,col='black',fill='brown',fontsize.group=fontsize,collapseTranscripts =collapseTranscripts ,fontcolor.group='black',showId=T)
-  ideo_track <- IdeogramTrack(genome=genome, chromosome=as.character(interv[1]),name=as.character(interv[1]))
+  ideo_track <- Gviz::IdeogramTrack(genome=genome, chromosome=as.character(interv[1]),name=as.character(interv[1]))
   p1 <- ggplotify::as.ggplot(function() Gviz::plotTracks(list(gene_track,ideo_track), from=as.numeric(interv[2]), 
                                                     to=as.numeric(interv[3]),
                                                    panel.only=T, add=F, frame=F, labelPos="below", margin=0, 
@@ -1008,11 +1009,11 @@ plotHicTracks <- function(set1,interv, plotAnn=F, plotMar=c(3.5,3), plot2Dann=F,
   return(list(plot = p, ylim = yLim/window_scale))
 }
 
-plotRegion <- function(interv, hic_data, plotHicTracks, plotGeneTrack, trackdb, scoreTracksToExtract, point_cex=1.3) { 
+plotRegion <- function(interv,genome, hic_data, plotHicTracks, plotGeneTrack, trackdb, scoreTracksToExtract, point_cex=1.3) { 
   HiC_plots <- lapply(hic_data, plotHicTracks,interv=interv, window_scale=1.8, label = '',pointCEX=point_cex)
   plots <- lapply(HiC_plots, function(x) x$plot)
   combined_plot <- Reduce(function(a, b) a / b, plots)
-  p1 <- plotGeneTrack(genome='mm10', interv=interv)
+  p1 <- plotGeneTrack(genome=genome, interv=interv)
   p <- combined_plot/p1+plot_layout(height=c(3,3,3,3,3,1),ncol=1)
   return(p)
 }

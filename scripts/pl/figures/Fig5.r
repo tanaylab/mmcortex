@@ -1,7 +1,6 @@
 # wd <- '/net//mraid20//export/tgdata/users/yonshap/proj/mmcortex/'
 wd <- '.'
 setwd(wd)
-library(misha)
 library(shaman)
 library(viridis)
 library(cowplot)
@@ -10,9 +9,12 @@ library(patchwork)
 library(ggrastr)
 library(ggplot2)
 library(ggplotify)
+library(rtracklayer)
 library(Gviz)
-
-gsetroot('/home/aviezerl/mm10')
+genome <- 'mm10'
+trackdb <- genome
+misha::gdb.create_genome(genome)
+misha::gsetroot(genome)
 source(file.path(wd, 'scripts/util.r'))
 theme_set(theme_cowplot())
 
@@ -92,7 +94,7 @@ plot_insulation_and_shaman_series <- function(i, hvmi, file_path) {
     gints2d_p <- dplyr::mutate(hvm_2d[hvmi,], start1 = start1 -SHIFT, end1 = end1 + SHIFT,
                               start2 = start2 -SHIFT, end2 = end2 + SHIFT)
 
-    nei_gints1d_ins_prc_all <- gintervals.neighbors(gints1d_p, ins_prc_all, mindist = 0, maxdist = 0, maxneighbors = 1e+7)
+    nei_gints1d_ins_prc_all <- misha::gintervals.neighbors(gints1d_p, ins_prc_all, mindist = 0, maxdist = 0, maxneighbors = 1e+7)
     inds <- nei_gints1d_ins_prc_all$intervalID
     
     # pdf(glue::glue('{tadi_fld}/Fig5C{i}a.pdf'), h = 750/71, w = 2000/71)
@@ -127,7 +129,7 @@ hvm_ls <- c('86', '214')
 plot_insulation_and_shaman_series(1, hvm_ls[[1]], file_path = fig_5b_path)
 
 ## Fig5C - from Boyan
-p_hapln1 <- plotRegion(interv_hapln1, hic_data_hapln1, 
+p_hapln1 <- plotRegion(interv = interv_hapln1,genome = genome, hic_data = hic_data_hapln1, 
             plotHicTracks, plotGeneTrack, trackdb, scoreTracksToExtract, point_cex = 0.75)
 pdf(fig_5c_path, h = 600/71, w = 510/71)
 print(p_hapln1)
@@ -160,7 +162,7 @@ plot_insulation_and_shaman_series(2, hvm_ls[[2]], file_path = fig_5e_path)
 
 
 ## Fig5F
-p_tnc <- plotRegion(interv_tnc, hic_data_tnc, 
+p_tnc <- plotRegion(interv = interv_tnc, genome = genome, hic_data = hic_data_tnc, 
             plotHicTracks, plotGeneTrack, trackdb, scoreTracksToExtract, point_cex = 0.75)
 pdf(fig_5f_path, h = 600/71, w = 510/71)
 print(p_tnc)

@@ -94,65 +94,34 @@ p_filt_non_cort_rna <- pheatmap::pheatmap(legc[c('Fabp7',unique(unlist(mbm_lst))
 save_pheatmap_pdf(p_filt_non_cort_rna, fig_s1c_path, h = 600/71, w = 1000/71)
 
 
-mcmd = vroom::vroom(file.path(wd, 'output/metacell_model/mcmd_pl_cort.tsv'))
-col_key <- tibble::deframe(unique(mcmd[,c('cell_type', 'color')]))
-color_key = unique(mcmd[,c('cell_type', 'color')])
-cust_st_ord = c('OPCs','Astrocytes','NSC','IPC_cyc', 'IPC','iCPN/CfuPN', 'iCPN_early','iCPN_late',
-                      'CPN_L2-3','CPN_L5_6','iCfuPN','SCPN','CthPN')
-cust_mc_ord_st = unlist(lapply(cust_st_ord, function(s) setNames(which(mcmd$cell_type == s)[order(mcmd$mean_day[which(mcmd$cell_type == s)])], 
-                                                                  rep(s, length(which(mcmd$cell_type == s)))
-                                                                )))
-
-
 ## Fig S1D
-load(file.path(wd, 'data/gene_modules_mcmd_pl_cort.Rda'))
-
-mc <- scdb_mc('pl_cort')
-legc <- log2(1e-5 + mc@e_gc)
-pltmt <- legc[unlist(gene_modules[cust_st_ord]),cust_mc_ord_st]
-pltmt <- pltmt - rowMeans(pltmt)
-p_gene_module_phm <- pheatmap::pheatmap(pltmt, cluster_rows = F, cluster_cols = F, 
-                fontsize_row = 6,
-                        gaps_row = seq(10,10*length(gene_modules), 10), 
-                                gaps_col = cumsum(table(mcmd$cell_type)[cust_st_ord]),
-                   show_rownames = F,
-                   show_colnames = F,
-                   col = colorRampPalette(c('blue3', 'white', 'red3'))(100), 
-                   breaks = seq(-3,3,l=101), annotation_col = col_annot, 
-                   annotation_colors = ann_colors, annotation_legend = F)
-p_gene_module_phm$gtable <- gridExtra::grid.arrange(p_gene_module_phm$gtable, vp=grid::viewport(width=0.9, height=1))
-save_pheatmap_pdf(p_gene_module_phm, fig_s1d_path, h = 700/71, w = 1150/71)
-
-
-
-## Fig S1E
 mc_cc = get_mc_cc(mat_id = 'pl_cort', mc_id = 'pl_cort', mc2d_id = 'pl_cort_not_cor_cc', plot_mc2d = FALSE)
 
-pdf(fig_s1e_path, h = 350/71, w = 700/71)
+pdf(fig_s1d_path, h = 350/71, w = 700/71)
 par(las = 2, mar = c(12,7,1,1), cex.axis= 1.5, cex.lab = 2)
 boxplot(100 - mc_cc$cc_score ~ factor(mcmd$cell_type, levels = cust_st_ord), col = col_key[cust_st_ord], ylab = '', xlab = '')
 title(xlab= 'Cell type', line = 9)
 title(ylab= 'Cell cycle score', line = 4)
 dev.off()
 
-## Fig S1F
-ct_day_mat <- tgs_matrix_tapply(t(mcmd[,grep('E\\d\\d', colnames(mcmd))]), mcmd$cell_type, sum)
+## Fig S1E
+ct_day_mat <- tgstat::tgs_matrix_tapply(t(mcmd[,grep('E\\d\\d', colnames(mcmd))]), mcmd$cell_type, sum)
 
 ct_day_mat_norm <- t(t(ct_day_mat)/colSums(ct_day_mat))
 
-pdf(fig_s1f_path, h = 1000/71, w = 600/71)
+pdf(fig_s1e_path, h = 1000/71, w = 600/71)
 par(cex.axis = 2.5, cex.main = 3, mar = c(5,5,4,1))
 barplot(ct_day_mat_norm[cust_st_ord,], col = color_key$color[match(cust_st_ord, color_key$cell_type)], yaxt = 'n', main = 'Cell type fraction by time point')
 dev.off()
 
 
-## Fig S1G
+## Fig S1F
 mcf <- scdb_mctnetflow('pl_cort')
-ct_flow_out_ls <- lapply(cust_st_ord, function(cti) do.call('rbind', lapply(mcf@mc_forward, function(x) rowSums(tgs_matrix_tapply(x[which(mcmd$cell_type == cti),], mcmd$cell_type, sum, na.rm = T), na.rm = T)/sum(colSums(x, na.rm = T), na.rm = T))))
+ct_flow_out_ls <- lapply(cust_st_ord, function(cti) do.call('rbind', lapply(mcf@mc_forward, function(x) rowSums(tgstat::tgs_matrix_tapply(x[which(mcmd$cell_type == cti),], mcmd$cell_type, sum, na.rm = T), na.rm = T)/sum(colSums(x, na.rm = T), na.rm = T))))
 ct_flow_out_ls_n <- lapply(ct_flow_out_ls, function(x) {y <- x/rowSums(x, na.rm = T); y[is.na(y)] <- 0; return(y)})
 names(ct_flow_out_ls_n) <- cust_st_ord
 
-ct_flow_in_ls <- lapply(cust_st_ord, function(cti) do.call('rbind', lapply(mcf@mc_backward, function(x) rowSums(tgs_matrix_tapply(t(x[,which(mcmd$cell_type == cti)]), mcmd$cell_type, sum, na.rm = T), na.rm = T)/sum(rowSums(x, na.rm = T), na.rm = T))))
+ct_flow_in_ls <- lapply(cust_st_ord, function(cti) do.call('rbind', lapply(mcf@mc_backward, function(x) rowSums(tgstat::tgs_matrix_tapply(t(x[,which(mcmd$cell_type == cti)]), mcmd$cell_type, sum, na.rm = T), na.rm = T)/sum(rowSums(x, na.rm = T), na.rm = T))))
 ct_flow_in_ls_n <- lapply(ct_flow_in_ls, function(x) {y <- x/rowSums(x, na.rm = T); y[is.na(y)] <- 0; return(y)})
 names(ct_flow_in_ls_n) <- cust_st_ord
 
@@ -160,7 +129,7 @@ aa <- paste0('E', 13:17)
 bb <- paste0('E', 14:18)
 xlabs <- apply(cbind(aa, rep('->', length(aa)), bb), 1, paste, collapse = ' ')
 
-pdf(fig_s1g_path, h = 2600/71, w = 700/71)
+pdf(fig_s1f_path, h = 2600/71, w = 700/71)
 par(mfrow = c(length(cust_st_ord),2), las = 2, mar = c(1,6,2,1), cex.main = 2, cex.axis = 2, cex.lab = 2)
 for (ct in cust_st_ord) {
     i <- match(ct, names(ct_flow_out_ls_n))

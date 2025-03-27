@@ -11,7 +11,6 @@ RUN R -e 'install.packages("tidyverse")'
 RUN R -e 'install.packages("grid")'
 RUN R -e 'install.packages("gridExtra")'
 RUN R -e 'install.packages("pheatmap")'
-RUN R -e 'install.packages("ComplexHeatmap")'
 RUN R -e 'install.packages("matrixStats")'
 RUN R -e 'install.packages("umap")'
 RUN R -e 'install.packages("Matrix")'
@@ -33,6 +32,7 @@ RUN R -e 'BiocManager::install(version = "3.20")'
 RUN R -e 'remotes::install_github("tanaylab/tgstat")'
 RUN R -e 'remotes::install_github("tanaylab/tglkmeans")'
 RUN R -e 'BiocManager::install("tanaylab/metacell")'
+RUN R -e 'BiocManager::install("ComplexHeatmap")'
 RUN R -e 'remotes::install_github("tanaylab/mcatac")'
 RUN R -e 'remotes::install_github("tanaylab/metacell.flow")'
 RUN R -e 'remotes::install_github("tanaylab/misha")'
@@ -41,11 +41,14 @@ RUN R -e 'remotes::install_github("tanaylab/shaman")'
 RUN R -e 'remotes::install_github("tanaylab/mcATAC")'
 RUN R -e 'remotes::install_github("tanaylab/iceqream")'
 
-
+RUN echo 'hello'
 RUN pwd
-RUN git clone https://yonatans2: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@github.com/tanaylab/mmcortex.git
+RUN pwd
+RUN pwd
 
 WORKDIR /mmcortex
+
+RUN git clone https://yonatans2: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@github.com/tanaylab/mmcortex.git
 
 RUN R -e 'source("scripts/download_data.r")'
 

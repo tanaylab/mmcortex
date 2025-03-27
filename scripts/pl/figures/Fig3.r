@@ -1,6 +1,4 @@
 library(metacell)
-library(misha)
-library(misha.ext)
 library(matrixStats)
 library(ComplexHeatmap)
 # library(mcATAC)
@@ -14,7 +12,6 @@ library(mcATAC)
 # wd <- '/net//mraid20//export/tgdata/users/yonshap/proj/mmcortex/'
 wd <- '.'
 setwd(wd)
-gsetroot('/home/aviezerl/mm10')
 scdb_init(file.path(wd, 'scdb'), f=T)
 source(file.path(wd, 'scripts/util.r'))
 
@@ -110,8 +107,8 @@ ch2 <- ComplexHeatmap::Heatmap(matrix = pltmt2[,] - rowMeans(pltmt2[,]), name = 
                               show_column_names = F,
                               show_row_dend = FALSE,
                               column_title_rot = 90,
-                              heatmap_legend_param = list(legend_height = unit(5, 'in'), 
-                              legend_width = unit(5, 'in'), 
+                              heatmap_legend_param = list(legend_height = unit(5, 'cm'), 
+                              legend_width = unit(5, 'cm'), 
                               labels_gp = gpar(fontsize = 16)),
                               heatmap_width = unit(45, 'cm'), 
                               heatmap_height = unit(8, 'cm'),

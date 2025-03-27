@@ -36,19 +36,18 @@ color_key <- unique(mcmd[,c('cell_type', 'color')])
 
 nsc_mcs <- which(mcmd$cell_type == 'NSC')
 
-cust_st_ord <- c('OPCsC_cyc', 'IPC','iCPN/CfuPN', 'iCPN_early','iCPN_late',
+cust_st_ord <- c('OPCs', 'Astrocytes', 'NSC', 'IPC','iCPN/CfuPN', 'iCPN_early','iCPN_late',
                       'CPN_L2-3','CPN_L5_6','iCfuPN','SCPN','CthPN')
 cust_mc_ord_st <- unlist(lapply(cust_st_ord, function(s) setNames(which(mcmd$cell_type == s)[order(mcmd$mean_day[which(mcmd$cell_type == s)])], 
                                                                   rep(s, length(which(mcmd$cell_type == s)))
                                                                 )))
 
-cust_st_ord2 <- c('OPCsC_cyc', 'IPC', 'iCPN_early','iCPN_late',
+cust_st_ord2 <- c('OPCs', 'Astrocytes', 'NSC', 'IPC_cyc', 'IPC', 'iCPN_early','iCPN_late',
                       'CPN_L2-3','CPN_L5_6','iCPN/CfuPN','iCfuPN','SCPN','CthPN')
 cust_mc_ord_st2 <- unlist(lapply(cust_st_ord2, function(s) setNames(which(mcmd$cell_type == s)[order(mcmd$mean_day[which(mcmd$cell_type == s)])], 
                                                                   rep(s, length(which(mcmd$cell_type == s)))
-                                                                )
-                                )
-                        )                         
+                                                                )))
+
 goi <- c('Pou3f1', 'Pou3f2', 'Cux1', 'Cux2', 'Neurod1', 'Neurog2', 'Id4',
          'Eomes', 'Hes1', 'Apoe', 'Sox5', 'Tbr1', 'Foxp2', 'Foxp1', 'Nfia', 'Islr2', 
          'Zbtb20', 'Bcl11b', 'Fezf2', 'Satb2', 'Mef2c', 'Nhlh1', 'Tle4',
@@ -125,7 +124,7 @@ p_pltmt_modules <-pheatmap::pheatmap(pltmt_modules, silent = T,
 
 p_pltmt_modules$gtable <- add.flag(pheatmap = p_pltmt_modules, kept.labels = lr, repel.degree = 0)
 
-save_pheatmap_pdf(x = p_pltmt_modules,filename =  fig_2a_path, h = 900, w = 850)
+save_pheatmap_pdf(x = p_pltmt_modules,filename =  fig_2a_path, h = 900/71, w = 850/71)
 
 
 ## Fig 2B

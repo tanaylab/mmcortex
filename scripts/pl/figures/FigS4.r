@@ -1,11 +1,9 @@
 # wd <- '/net//mraid20//export/tgdata/users/yonshap/proj/mmcortex/'
 wd <- '.'
 setwd(wd)
-library(misha)
 library(metacell)
 db_path <- file.path(wd, 'scdb')
 scdb_init(db_path, force_reinit = T)
-gsetroot('/home/aviezerl/mm10')
 source(file.path(wd, 'scripts/util.r'))
 
 load(file = file.path(wd, 'output/methylation/avg_meth_all.rda'))

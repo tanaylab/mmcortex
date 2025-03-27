@@ -72,7 +72,6 @@ dir.create('./output/paper_figs/FigS2/')
 device <- 'pdf'
 fig_s2a_path <- glue::glue('./output/paper_figs/FigS2/FigS2A.{device}')
 fig_s2b_path <- glue::glue('./output/paper_figs/FigS2/FigS2B.{device}')
-fig_s2b_legend_path <- glue::glue('./output/paper_figs/FigS2/FigS2B_legend.{device}')
 fig_s2c_path <- glue::glue('./output/paper_figs/FigS2/FigS2C.{device}')
 fig_s2d_path <- glue::glue('./output/paper_figs/FigS2/FigS2D.{device}')
 fig_s2e_path <- glue::glue('./output/paper_figs/FigS2/FigS2E.{device}')
@@ -90,7 +89,7 @@ load('./output/metacell_model/nsc_gene_modules/figs2_data.rda')
 load('./output/metacell_model/nsc_gene_modules/phase_info.rda')
 
 ## Fig S2A
-st_legc <- as.data.frame(t(tgs_matrix_tapply(legc, mcmd$cell_type, mean)))
+st_legc <- as.data.frame(t(tgstat::tgs_matrix_tapply(legc, mcmd$cell_type, mean)))
 
 
 cluster_names <- setNames(c('Cell cycle 1', 
@@ -329,4 +328,4 @@ p_nsc_cl4 <- pheatmap::pheatmap(pltmt2 - pltmt2[,'Astrocytes'],
 
 
 
-save_pheatmap_pdf(p_nsc_cl4, fig_s2i_path, h= 1200/71, w = 600/71)
+save_pheatmap_pdf(p_nsc_cl4, fig_s2i_path, h= 1200/71, w = 300/71)
