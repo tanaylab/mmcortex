@@ -41,16 +41,11 @@ RUN R -e 'remotes::install_github("tanaylab/shaman")'
 RUN R -e 'remotes::install_github("tanaylab/mcATAC")'
 RUN R -e 'remotes::install_github("tanaylab/iceqream")'
 
-RUN echo 'hello'
-RUN pwd
-RUN pwd
-RUN pwd
+RUN git clone https://yonatans2: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@github.com/tanaylab/mmcortex.git
 
 WORKDIR /mmcortex
 
-RUN git clone https://yonatans2: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@github.com/tanaylab/mmcortex.git
-
-RUN R -e 'source("scripts/download_data.r")'
+RUN R -e 'source("./scripts/download_data.r")'
 
 RUN bash scripts/pl/pl_figures.sh
 
