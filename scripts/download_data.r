@@ -25,5 +25,5 @@ for (folder in folder_names) {
   if(!dir.exists(folder)) {
     dir.create(folder)
   }
-  print(list.files(file.path(folder)))
+  print(list.files(folder))
 }

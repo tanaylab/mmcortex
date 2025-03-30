@@ -1,9 +1,9 @@
 library(metacell)
 # devtools::load_all('~/src/metacell.flow')
 library(metacell.flow)
-library(ComplexHeatmap)
+suppressPackageStartupMessages(library(ComplexHeatmap))
 
-wd = '.'
+wd = ''
 db_path = file.path(wd, 'scdb')
 scdb_init(db_path, force_reinit = T)
 scdb_flow_init()

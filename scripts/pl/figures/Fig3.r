@@ -1,6 +1,6 @@
 library(metacell)
 library(matrixStats)
-library(ComplexHeatmap)
+suppressPackageStartupMessages(library(ComplexHeatmap))
 # library(mcATAC)
 library(tgstat)
 library(plyr)
@@ -10,7 +10,7 @@ library(iceqream)
 library(mcATAC)
 
 # wd <- '/net//mraid20//export/tgdata/users/yonshap/proj/mmcortex/'
-wd <- '.'
+wd <- ''
 setwd(wd)
 scdb_init(file.path(wd, 'scdb'), f=T)
 source(file.path(wd, 'scripts/util.r'))

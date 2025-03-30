@@ -1,7 +1,7 @@
 library(beeswarm)
 
 # wd <- '/net/mraid20/export/tgdata/users/yonshap/proj/mmcortex/'
-wd <- '.'
+wd <- ''
 setwd(wd)
 source(file.path(wd, 'scripts/util.r'))
 

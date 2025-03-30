@@ -1,6 +1,6 @@
 
 # wd <- '/net/mraid20/export/tgdata/users/yonshap/proj/mmcortex/'
-wd <- '.'
+wd <- ''
 # setwd(wd)
 library(tgstat)
 source(file.path(wd, 'scripts/util.r'))

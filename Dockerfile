@@ -33,7 +33,6 @@ RUN R -e 'remotes::install_github("tanaylab/tgstat")'
 RUN R -e 'remotes::install_github("tanaylab/tglkmeans")'
 RUN R -e 'BiocManager::install("tanaylab/metacell")'
 RUN R -e 'BiocManager::install("ComplexHeatmap")'
-RUN R -e 'remotes::install_github("tanaylab/mcatac")'
 RUN R -e 'remotes::install_github("tanaylab/metacell.flow")'
 RUN R -e 'remotes::install_github("tanaylab/misha")'
 RUN R -e 'remotes::install_github("tanaylab/misha.ext")'
@@ -44,6 +43,7 @@ RUN R -e 'remotes::install_github("tanaylab/iceqream")'
 RUN pwd
 RUN pwd
 RUN pwd
+RUN pwd
 
 RUN git clone https://yonatans2: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@github.com/tanaylab/mmcortex.git
 
@@ -51,7 +51,7 @@ WORKDIR /mmcortex
 
 RUN R -e 'source("./scripts/download_data.r")'
 
-
+RUN dir -s
 
 RUN bash scripts/pl/pl_figures.sh
 

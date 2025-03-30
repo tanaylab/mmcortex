@@ -1,5 +1,5 @@
 # wd <- '/net//mraid20//export/tgdata/users/yonshap/proj/mmcortex/'
-wd <- '.'
+wd <- ''
 setwd(wd)
 library(metacell)
 db_path <- file.path(wd, 'scdb')

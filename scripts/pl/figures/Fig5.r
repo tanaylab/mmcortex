@@ -1,5 +1,5 @@
 # wd <- '/net//mraid20//export/tgdata/users/yonshap/proj/mmcortex/'
-wd <- '.'
+wd <- ''
 setwd(wd)
 library(shaman)
 library(viridis)
@@ -11,6 +11,8 @@ library(ggplot2)
 library(ggplotify)
 library(rtracklayer)
 library(Gviz)
+library(Hmisc)
+library(biomaRt)
 genome <- 'mm10'
 trackdb <- genome
 misha::gdb.create_genome(genome)
