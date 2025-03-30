@@ -11,6 +11,7 @@ file.remove("mmcortex.tar.gz")
 folder_names <- c('figs', 
                   'scripts', 
                   'output', 
+                  'scdb',
                   'output/metacell_model', 
                   'output/metacell_flow', 
                   'output/mcatac',
@@ -24,4 +25,5 @@ for (folder in folder_names) {
   if(!dir.exists(folder)) {
     dir.create(folder)
   }
+  print(list.files(file.path(folder)))
 }
