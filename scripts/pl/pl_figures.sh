@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-cd ~/raid/proj/mmcortex
+# cd ~/raid/proj/mmcortex
 
 
 Rscript scripts/pl/figures/Fig1.r
