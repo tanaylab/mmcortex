@@ -10,8 +10,8 @@ library(iceqream)
 library(mcATAC)
 
 # wd <- '/net//mraid20//export/tgdata/users/yonshap/proj/mmcortex/'
-wd <- ''
-setwd(wd)
+wd <- '.'
+# setwd(wd)
 scdb_init(file.path(wd, 'scdb'), f=T)
 source(file.path(wd, 'scripts/util.r'))
 

@@ -4,7 +4,8 @@ library(metacell.flow)
 suppressPackageStartupMessages(library(ComplexHeatmap))
 
 # wd <- '/home/feshap/raid/proj/mmcortex'
-wd <- ''
+wd <- '.'
+# setwd(wd)
 db_path <- file.path(wd, 'scdb')
 scdb_init(db_path, force_reinit = T)
 scdb_flow_init()

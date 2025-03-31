@@ -5,6 +5,7 @@ FROM r-base:4.4.2
 # RUN apt-get update && apt-get install -y  git-core libcurl4-openssl-dev libgit2-dev libicu-dev libssl-dev libxml2-dev make pandoc pandoc-citeproc zlib1g-dev libgtk2.0-dev libcairo2-dev libxt-dev xvfb xauth xfonts-base vim && rm -rf /var/lib/apt/lists/*
 RUN apt-get update && apt-get install -y  git-core libcurl4-openssl-dev libgit2-dev libicu-dev libssl-dev libxml2-dev make pandoc zlib1g-dev libgtk2.0-dev libcairo2-dev libxt-dev xvfb && rm -rf /var/lib/apt/lists/*
 
+RUN ls
 
 RUN R -e 'install.packages("remotes")'
 RUN R -e 'install.packages("tidyverse")'
@@ -40,10 +41,7 @@ RUN R -e 'remotes::install_github("tanaylab/shaman")'
 RUN R -e 'remotes::install_github("tanaylab/mcATAC")'
 RUN R -e 'remotes::install_github("tanaylab/iceqream")'
 
-RUN pwd
-RUN pwd
-RUN pwd
-RUN pwd
+RUN pwd 
 
 RUN git clone https://yonatans2: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@github.com/tanaylab/mmcortex.git
 
@@ -51,9 +49,9 @@ WORKDIR /mmcortex
 
 RUN R -e 'source("./scripts/download_data.r")'
 
-RUN dir -s
+RUN tar -xvzf mmcortex.tar.gz
 
-RUN bash scripts/pl/pl_figures.sh
+# RUN bash scripts/pl/pl_figures.sh
 
 # Run R
 # CMD ["R"]

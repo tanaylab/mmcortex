@@ -1,8 +1,8 @@
 library(beeswarm)
 
 # wd <- '/net/mraid20/export/tgdata/users/yonshap/proj/mmcortex/'
-wd <- ''
-setwd(wd)
+wd <- '.'
+# setwd(wd)
 source(file.path(wd, 'scripts/util.r'))
 
 load(file = './output/sequence_modeling/fig_6_data.rda')

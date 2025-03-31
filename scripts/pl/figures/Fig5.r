@@ -1,6 +1,6 @@
 # wd <- '/net//mraid20//export/tgdata/users/yonshap/proj/mmcortex/'
-wd <- ''
-setwd(wd)
+wd <- '.'
+# setwd(wd)
 library(shaman)
 library(viridis)
 library(cowplot)

@@ -1,6 +1,6 @@
 # wd <- '/net//mraid20//export/tgdata/users/yonshap/proj/mmcortex/'
-wd <- ''
-setwd(wd)
+wd <- '.'
+# setwd(wd)
 source(file.path(wd, 'scripts/util.r'))
 library(grid)
 library(gridExtra)

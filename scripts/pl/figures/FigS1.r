@@ -6,7 +6,8 @@ library(metacell.flow)
 library(princurve)
 library(vioplot)
 # wd = '/net/mraid20/export/tgdata/users/yonshap/proj/mmcortex'
-wd <- ''
+wd <- '.'
+# setwd(wd)
 set.seed(1337)
 
 db_path = file.path(wd, 'scdb')

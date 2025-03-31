@@ -4,8 +4,8 @@ library(metacell.flow)
 suppressPackageStartupMessages(library(ComplexHeatmap))
 library(matrixStats)
 # wd <- '/net//mraid20//export/tgdata/users/yonshap/proj/mmcortex/'
-wd <- ''
-setwd(wd)
+wd <- '.'
+# setwd(wd)
 db_path <- file.path(wd, 'scdb')
 scdb_init(db_path, force_reinit = T)
 scdb_flow_init()
