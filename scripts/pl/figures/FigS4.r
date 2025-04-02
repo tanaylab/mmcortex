@@ -6,7 +6,7 @@ db_path <- file.path(wd, 'scdb')
 scdb_init(db_path, force_reinit = T)
 source(file.path(wd, 'scripts/util.r'))
 
-load(file = file.path(wd, 'output/methylation/avg_meth_all.rda'))
+# load(file = file.path(wd, 'output/methylation/avg_meth_all.rda'))
 load(file = file.path(wd, 'output/methylation/fig4_meth_data.rda'))
 load(file = file.path(wd, 'output/mcatac/fig4_atac_data.rda'))
 mcmd <- readr::read_tsv(file.path(wd, 'output/metacell_model/mcmd_pl_cort.tsv'))

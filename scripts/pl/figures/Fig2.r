@@ -81,6 +81,7 @@ legc <- log2(1e-05 + mc@e_gc)
 ## End
 
 device <- 'pdf'
+dir.create('./output/paper_figs/Fig2/')
 fig_2a_path <- glue::glue('./output/paper_figs/Fig2/Fig2A.{device}')
 fig_2b_path <- glue::glue('./output/paper_figs/Fig2/Fig2B.{device}')
 fig_2c_path <- glue::glue('./output/paper_figs/Fig2/Fig2C.{device}')

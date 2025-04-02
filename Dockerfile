@@ -10,9 +10,11 @@ RUN ls
 RUN R -e 'install.packages("remotes")'
 RUN R -e 'install.packages("tidyverse")'
 RUN R -e 'install.packages("grid")'
+RUN R -e 'install.packages("gplots")'
 RUN R -e 'install.packages("gridExtra")'
 RUN R -e 'install.packages("pheatmap")'
 RUN R -e 'install.packages("matrixStats")'
+RUN R -e 'install.packages("doMC")'
 RUN R -e 'install.packages("umap")'
 RUN R -e 'install.packages("Matrix")'
 RUN R -e 'install.packages("princurve")'
@@ -22,7 +24,6 @@ RUN R -e 'install.packages("cowplot")'
 RUN R -e 'install.packages("patchwork")'
 RUN R -e 'install.packages("ggrastr")'
 RUN R -e 'install.packages("ggplotify")'
-RUN R -e 'install.packages("Gviz")'
 RUN R -e 'install.packages("gridExtra")'
 
 
@@ -34,6 +35,8 @@ RUN R -e 'remotes::install_github("tanaylab/tgstat")'
 RUN R -e 'remotes::install_github("tanaylab/tglkmeans")'
 RUN R -e 'BiocManager::install("tanaylab/metacell")'
 RUN R -e 'BiocManager::install("ComplexHeatmap")'
+RUN R -e 'BiocManager::install("sparseMatrixStats")'
+RUN R -e 'BiocManager::install("Gviz")'
 RUN R -e 'remotes::install_github("tanaylab/metacell.flow")'
 RUN R -e 'remotes::install_github("tanaylab/misha")'
 RUN R -e 'remotes::install_github("tanaylab/misha.ext")'
@@ -41,7 +44,7 @@ RUN R -e 'remotes::install_github("tanaylab/shaman")'
 RUN R -e 'remotes::install_github("tanaylab/mcATAC")'
 RUN R -e 'remotes::install_github("tanaylab/iceqream")'
 
-RUN pwd 
+RUN ls 
 
 RUN git clone https://yonatans2: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@github.com/tanaylab/mmcortex.git
 

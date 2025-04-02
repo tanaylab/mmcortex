@@ -2,6 +2,7 @@
 
 # cd ~/raid/proj/mmcortex
 
+mkdir output/paper_figs
 
 Rscript scripts/pl/figures/Fig1.r
 Rscript scripts/pl/figures/FigS1.r

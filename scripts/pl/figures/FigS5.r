@@ -5,7 +5,7 @@ library(vioplot)
 source(file.path(wd, 'scripts/util.r'))
 
 
-load(file = file.path(wd, 'output/methylation/avg_meth_all.rda'))
+load(file = file.path(wd, 'output/methylation/fig4_meth_data.rda'))
 
 load(file = file.path(wd, 'output/hic/figS5_data.rda'))
 

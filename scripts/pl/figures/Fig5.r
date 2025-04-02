@@ -21,7 +21,8 @@ source(file.path(wd, 'scripts/util.r'))
 theme_set(theme_cowplot())
 
 
-load(file = file.path(wd, 'output/methylation/avg_meth_all.rda'))
+# load(file = file.path(wd, 'output/methylation/avg_meth_all.rda'))
+load(file = file.path(wd, 'output/methylation/fig4_meth_data.rda'))
 
 load(file = file.path(wd, 'output/hic/fig5_data.rda'))
 

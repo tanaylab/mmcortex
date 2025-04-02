@@ -51,6 +51,7 @@ ann_colors = list('cell_type' = tibble::deframe(unique(mcmd[,c('cell_type', 'col
                                       seq(13,18,l=100)))
 
 device <- 'pdf'
+dir.create('./output/paper_figs/FigS1/')
 fig_s1ab_path <- file.path(wd, glue::glue('output/paper_figs/FigS1/FigS1AB.{device}'))
 fig_s1c_path <- file.path(wd, glue::glue('output/paper_figs/FigS1/FigS1C.{device}'))
 fig_s1d_path <- file.path(wd, glue::glue('output/paper_figs/FigS1/FigS1D.{device}'))

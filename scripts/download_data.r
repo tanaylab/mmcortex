@@ -8,7 +8,7 @@ system("tar -xvzf mmcortex.tar.gz")
 
 # file.remove("mmcortex.tar.gz")
 
-# folder_names <- c('figs', 
+folder_names <- c('figs', 
 #                   'scripts', 
 #                   'output', 
 #                   'scdb',
@@ -19,11 +19,11 @@ system("tar -xvzf mmcortex.tar.gz")
 #                   'output/hic',
 #                   'output/sequence_modeling',
 #                   'output/MPRA',
-#                   'output/paper_figs')
+                  'output/paper_figs')
 
-# for (folder in folder_names) {
-#   if(!dir.exists(folder)) {
-#     dir.create(folder)
-#   }
-#   print(list.files(folder))
-# }
+for (folder in folder_names) {
+  if(!dir.exists(folder)) {
+    dir.create(folder)
+  }
+  print(list.files(folder))
+}
