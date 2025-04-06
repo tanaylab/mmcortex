@@ -13,7 +13,7 @@ How to reproduce manually
 
 Using docker container
 1) Install [docker]([url](https://docs.docker.com/engine/install/))
-2) Download container from [## INSERT URL ##](url).
+2) Download [container]([url](https://mmcortex.s3.eu-west-1.amazonaws.com/mmcortex_docker.tar)).
 3) Run container using the command `docker run -d --name <MY_DOCKER_NAME> -it mmcortex sh`. (choose container alias instead of <MY_DOCKER_NAME>)
 4) Inside the container enter the command `bash scripts/pl/pl_figures.sh`.
 5) Open a different terminal and change to the directory where you are running the container.
