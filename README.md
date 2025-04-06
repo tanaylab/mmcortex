@@ -1,4 +1,4 @@
-This repo holds links and code to browse processed data and reproduce the figures in 'Neural stem cell epigenomes and fate bias are temporally coordinated during corticogenesis' by Shapira et al. (2025).
+This repo holds links and code to browse processed data and reproduce the figures in [Neural stem cell epigenomes and fate bias are temporally coordinated during corticogenesis](https://www.biorxiv.org/content/10.1101/2025.04.03.647013v1) by Shapira et al. (2025).
 
 Figures can be reproduced in two ways:
 1) Manually - downloading the repo and data separately, and installing required packages.
